@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>
 #include <common/bswp.h>
 #include <core/config.h>
+#include <core/loopy_io.h>
 #include <core/system.h>
-#include <sdl/imgwriter.h>
 #include <input/input.h>
 #include <log/log.h>
+#include <sdl/imgwriter.h>
 #include <sound/sound.h>
 #include <video/video.h>
 
@@ -15,7 +16,6 @@
 #include <iostream>
 
 #include "config.h"
-#include "core/loopy_io.h"
 #include "options.h"
 
 #define PRESCALE_FACTOR 4
@@ -62,7 +62,6 @@ void capture_mouse(bool cap)
 {
 	SDL_SetRelativeMouseMode(cap ? SDL_TRUE : SDL_FALSE);
 	mouse_captured = cap;
-	// Not production ready?
 	LoopyIO::set_controller_plugged(!cap, cap);
 }
 
@@ -179,7 +178,7 @@ void update(uint16_t* display_output, int visible_scanlines, uint16_t background
 	int pitch;
 
 	// More efficient alternative to SDL_UpdateTexture(screen.texture, NULL, display_output, sizeof(uint16_t) * DISPLAY_WIDTH);
-	if (SDL_LockTexture(screen.framebuffer, NULL, &pixels, &pitch) == 0)
+	if (SDL_LockTexture(screen.framebuffer, nullptr, &pixels, &pitch) == 0)
 	{
 		memcpy(pixels, display_output, sizeof(uint16_t) * DISPLAY_WIDTH * DISPLAY_HEIGHT);
 		SDL_UnlockTexture(screen.framebuffer);
@@ -190,11 +189,11 @@ void update(uint16_t* display_output, int visible_scanlines, uint16_t background
 	{
 		SDL_SetRenderTarget(screen.renderer, screen.prescaled);
 		SDL_RenderClear(screen.renderer);
-		SDL_RenderCopy(screen.renderer, screen.framebuffer, NULL, NULL);
+		SDL_RenderCopy(screen.renderer, screen.framebuffer, nullptr, nullptr);
 	}
 
 	// Change target back to screen (must be done before querying renderer output size!)
-	SDL_SetRenderTarget(screen.renderer, NULL);
+	SDL_SetRenderTarget(screen.renderer, nullptr);
 	set_draw_color_16bpp(background_color);
 	SDL_RenderClear(screen.renderer);
 
@@ -481,20 +480,19 @@ int main(int argc, char** argv)
 
 	SDL::initialize(args);
 
-	constexpr int framerate_target = 60;  //TODO: get this from Video if it can be changed (e.g. for PAL mode)
-	constexpr int framerate_max_lag = 5;
-	int last_frame_ticks = SDL_GetPerformanceCounter();
-
+	uint64_t last_frame_ticks = SDL_GetPerformanceCounter();
 	while (!has_quit)
 	{
+		constexpr int framerate_target = 60;  //TODO: get this from Video if it can be changed (e.g. for PAL mode)
+		constexpr int framerate_max_lag = 5;
 		//Check how much time passed since we drew the last frame
-		int ticks_per_frame = SDL_GetPerformanceFrequency() / framerate_target;
-		int now_ticks = SDL_GetPerformanceCounter();
-		int ticks_since_last_frame = now_ticks - last_frame_ticks;
+		uint64_t ticks_per_frame = SDL_GetPerformanceFrequency() / framerate_target;
+		uint64_t now_ticks = SDL_GetPerformanceCounter();
+		uint64_t ticks_since_last_frame = now_ticks - last_frame_ticks;
 
 		//See how many we need to draw
 		//If we're vsynced to a 60Hz display with no lag, this should stay at 1 most of the time
-		int draw_frames = ticks_since_last_frame / ticks_per_frame;
+		uint64_t draw_frames = ticks_since_last_frame / ticks_per_frame;
 		last_frame_ticks += draw_frames * ticks_per_frame;
 
 		//If too far behind, draw one frame and start timing again from now
@@ -636,7 +634,7 @@ int main(int argc, char** argv)
 				{
 					Input::set_mouse_button_state(e.button.button, true);
 				}
-				else
+				else if (args.capture_mouse)
 				{
 					SDL::capture_mouse(true);
 				}

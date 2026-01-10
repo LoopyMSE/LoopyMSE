@@ -1,5 +1,6 @@
 #include "input/input.h"
 
+#include <SDL_mouse.h>
 #include <core/loopy_io.h>
 
 #include <unordered_map>
@@ -47,12 +48,11 @@ void set_key_state(int key, bool pressed)
 
 void set_mouse_button_state(int button, bool pressed)
 {
-	// TODO: replace the hardcoded 1 and 3 with SDL constants or bindings?
-	if (button == 1)
+	if (button == SDL_BUTTON_LEFT)
 	{
 		LoopyIO::update_mouse_buttons(MOUSE_L, pressed);
 	}
-	if (button == 3)
+	if (button == SDL_BUTTON_RIGHT)
 	{
 		LoopyIO::update_mouse_buttons(MOUSE_R, pressed);
 	}

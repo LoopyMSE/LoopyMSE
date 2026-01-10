@@ -197,6 +197,7 @@ void set_controller_plugged(bool plugged_pad, bool plugged_mouse)
 		state.mouse.counter_x = 0;
 		state.mouse.counter_y = 0;
 	}
+	Log::debug("Controller port devices set, PAD=%d MOUSE=%d", state.pad.plugged, state.mouse.plugged);
 }
 
 void update_print_temp()

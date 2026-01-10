@@ -151,7 +151,8 @@ bool parse_config(fs::path config_path, Args& args)
 		("emulator.correct_aspect_ratio", po::value<bool>()->default_value(true), "Stretch display pixels to 4:3")
 		("emulator.crop_overscan", po::value<bool>()->default_value(true), "Crop border and overscan areas")
 		("emulator.antialias", po::value<bool>()->default_value(true), "Apply AA (recommended when used with aspect ratio correction)")
-		("emulator.screenshot_image_type", po::value<std::string>()->default_value("bmp"), "Image file type for screenshots");
+		("emulator.screenshot_image_type", po::value<std::string>()->default_value("bmp"), "Image file type for screenshots")
+		("emulator.capture_mouse", po::value<bool>()->default_value(false), "Use the Loopy Mouse when clicking inside the focused window");
 
 	po::options_description printer_options("Printer");
 	printer_options.add_options()
@@ -180,10 +181,11 @@ bool parse_config(fs::path config_path, Args& args)
 		args.antialias = vm["emulator.antialias"].as<bool>();
 		args.crop_overscan = vm["emulator.crop_overscan"].as<bool>();
 		args.int_scale = vm["emulator.int_scale"].as<int>();
+		args.capture_mouse = vm["emulator.capture_mouse"].as<bool>();
+
 		args.screenshot_image_type = imagew::parse_image_type(
 			vm["emulator.screenshot_image_type"].as<std::string>(), imagew::IMAGE_TYPE_DEFAULT
 		);
-
 		args.printer_image_type =
 			imagew::parse_image_type(vm["printer.image_type"].as<std::string>(), imagew::IMAGE_TYPE_DEFAULT);
 		args.printer_view_command = vm["printer.view_command"].as<std::string>();
