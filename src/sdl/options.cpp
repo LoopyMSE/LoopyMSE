@@ -5,12 +5,12 @@
 #include <fstream>
 #include <iostream>
 
-#include "common/imgwriter.h"
+#include "imgwriter.h"
 #include "input/input.h"
 #include "log/log.h"
 
 namespace po = boost::program_options;
-namespace imagew = Common::ImageWriter;
+namespace imagew = SDL::ImageWriter;
 
 namespace Options
 {

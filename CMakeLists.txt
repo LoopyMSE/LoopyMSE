@@ -7,12 +7,12 @@ set (CMAKE_CXX_EXTENSIONS OFF)
 project (LoopyMSE LANGUAGES C CXX ASM)
 set (PROJECT_VERSION 0.5.1)
 set (PROJECT_DESCRIPTION "Loopy My Seal Emulator")
-set (PROJECT_HOMEPAGE_URL "https://github.com/PSI-Rockin/LoopyMSE")
-set (PROJECT_ORG "PSI")
+set (PROJECT_HOMEPAGE_URL "https://github.com/LoopyMSE/LoopyMSE")
+set (PROJECT_ORG "LoopyMSE")
 
 string(REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
-cmake_policy(SET CMP0167 NEW)
+#cmake_policy(SET CMP0167 NEW)
 
 # Boost program_options package, statically linked
 set(Boost_USE_STATIC_LIBS ON CACHE BOOL "" FORCE)

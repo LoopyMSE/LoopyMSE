@@ -1,5 +1,6 @@
-#include "common/imgwriter.h"
+#include "imgwriter.h"
 
+#include <SDL_surface.h>
 #include <log/log.h>
 
 #include <algorithm>
@@ -8,12 +9,12 @@
 #include <fstream>
 #include <vector>
 
-namespace Common::ImageWriter
+namespace SDL::ImageWriter
 {
 
 int parse_image_type(std::string type, int default_)
 {
-	std::transform(type.begin(), type.end(), type.begin(), [](unsigned char c){ return std::tolower(c); });
+	std::transform(type.begin(), type.end(), type.begin(), [](unsigned char c) { return std::tolower(c); });
 	if (type == "bmp" || type == ".bmp" || type == "bitmap")
 	{
 		return IMAGE_TYPE_BMP;
@@ -40,6 +41,10 @@ fs::path make_unique_name(std::string prefix, std::string suffix)
 
 bool write_bmp(fs::path path, uint32_t width, uint32_t height, uint32_t data[], bool transparent)
 {
+	SDL_Surface* surf =
+		SDL_CreateRGBSurfaceWithFormatFrom(data, (int)width, (int)height, 32, (int)width * 4, SDL_PIXELFORMAT_ARGB8888);
+	return 0 == SDL_SaveBMP(surf, path.string().c_str());
+
 	std::ofstream bmp_file(path, std::ios::binary);
 	if (!bmp_file.is_open()) return false;
 
@@ -50,7 +55,7 @@ bool write_bmp(fs::path path, uint32_t width, uint32_t height, uint32_t data[], 
 	uint32_t head_size = 14;
 	uint32_t info_size = transparent ? 108 : 40;
 	uint32_t data_size_per_row = transparent ? (width * 4) : (width * 3);
-	uint32_t padding_per_row = (4 - (data_size_per_row % 4)) % 4; 
+	uint32_t padding_per_row = (4 - (data_size_per_row % 4)) % 4;
 	uint32_t data_size = (data_size_per_row + padding_per_row) * height;
 
 	uint32_t file_size = head_size + info_size + data_size;
@@ -74,12 +79,12 @@ bool write_bmp(fs::path path, uint32_t width, uint32_t height, uint32_t data[], 
 	uint16_t bpp = transparent ? 32 : 24;
 	bmp_file.write((char*)&bpp, 2);
 
-	uint32_t compression = transparent ? 3 : 0; // BI_BITFIELDS or BI_RGB
+	uint32_t compression = transparent ? 3 : 0;	 // BI_BITFIELDS or BI_RGB
 	bmp_file.write((char*)&compression, 4);
 
 	bmp_file.write((char*)&data_size, 4);
 
-	uint32_t pixels_per_metre = 2835; // 72DPI
+	uint32_t pixels_per_metre = 2835;  // 72DPI
 	bmp_file.write((char*)&pixels_per_metre, 4);
 	bmp_file.write((char*)&pixels_per_metre, 4);
 
@@ -163,7 +168,10 @@ bool save_image_16bpp(int image_type, fs::path path, uint32_t width, uint32_t he
 	return write_image(image_type, path, width, height, data_argb, transparent);
 }
 
-bool save_image_8bpp(int image_type, fs::path path, uint32_t width, uint32_t height, uint8_t data[], uint32_t num_colors, uint16_t palette[], bool transparent)
+bool save_image_8bpp(
+	int image_type, fs::path path, uint32_t width, uint32_t height, uint8_t data[], uint32_t num_colors,
+	uint16_t palette[], bool transparent
+)
 {
 	unsigned int num_pixels = width * height;
 	uint16_t data_16bpp[num_pixels];
@@ -178,4 +186,4 @@ bool save_image_8bpp(int image_type, fs::path path, uint32_t width, uint32_t hei
 	return save_image_16bpp(image_type, path, width, height, data_16bpp, transparent);
 }
 
-}
+}  // namespace SDL::ImageWriter

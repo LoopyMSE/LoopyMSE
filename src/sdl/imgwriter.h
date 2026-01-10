@@ -5,7 +5,7 @@
 
 namespace fs = std::filesystem;
 
-namespace Common::ImageWriter
+namespace SDL::ImageWriter
 {
 
 constexpr static int IMAGE_TYPE_BMP = 1;

@@ -1,8 +1,8 @@
 #include <SDL2/SDL.h>
 #include <common/bswp.h>
-#include <common/imgwriter.h>
 #include <core/config.h>
 #include <core/system.h>
+#include <sdl/imgwriter.h>
 #include <input/input.h>
 #include <log/log.h>
 #include <sound/sound.h>
@@ -15,12 +15,13 @@
 #include <iostream>
 
 #include "config.h"
+#include "core/loopy_io.h"
 #include "options.h"
 
 #define PRESCALE_FACTOR 4
 #define MAX_WINDOW_INT_SCALE 10
 
-namespace imagew = Common::ImageWriter;
+namespace imagew = SDL::ImageWriter;
 
 namespace SDL
 {
@@ -61,6 +62,8 @@ void capture_mouse(bool cap)
 {
 	SDL_SetRelativeMouseMode(cap ? SDL_TRUE : SDL_FALSE);
 	mouse_captured = cap;
+	// Not production ready?
+	LoopyIO::set_controller_plugged(!cap, cap);
 }
 
 bool is_mouse_captured()
