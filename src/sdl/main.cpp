@@ -62,7 +62,6 @@ void capture_mouse(bool cap)
 {
 	SDL_SetRelativeMouseMode(cap ? SDL_TRUE : SDL_FALSE);
 	mouse_captured = cap;
-	// LoopyIO::set_controller_plugged(!cap, cap);
 }
 
 bool is_mouse_captured()
@@ -655,7 +654,7 @@ int main(int argc, char** argv)
 				{
 					Input::set_mouse_button_state(e.button.button, true);
 				}
-				else if (args.capture_mouse)
+				else
 				{
 					SDL::capture_mouse(true);
 				}

@@ -18,7 +18,6 @@ struct Args
 	bool crop_overscan;
 	bool antialias;
 	bool verbose;
-	bool capture_mouse;
 	int int_scale = 2;
 	int screenshot_image_type;
 
