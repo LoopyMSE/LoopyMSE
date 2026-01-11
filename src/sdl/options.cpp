@@ -157,7 +157,8 @@ bool parse_config(fs::path config_path, Args& args)
 	po::options_description printer_options("Printer");
 	printer_options.add_options()
 		("printer.image_type", po::value<std::string>()->default_value("bmp"), "Image file type for printed files")
-		("printer.view_command", po::value<std::string>()->default_value("OPEN"), "Command to run with printed files");
+		("printer.view_command", po::value<std::string>()->default_value("OPEN"), "Command to run with printed files")
+		("printer.correct_aspect_ratio", po::value<bool>()->default_value(true), "Scale up print and stretch to same aspect ratio as Loopy Seals");
 
 	po::options_description options;
 	options.add(key_options).add(button_options).add(emu_options).add(printer_options);
@@ -186,6 +187,7 @@ bool parse_config(fs::path config_path, Args& args)
 		args.screenshot_image_type = imagew::parse_image_type(
 			vm["emulator.screenshot_image_type"].as<std::string>(), imagew::IMAGE_TYPE_DEFAULT
 		);
+		args.printer_correct_aspect_ratio = vm["printer.correct_aspect_ratio"].as<bool>();
 		args.printer_image_type =
 			imagew::parse_image_type(vm["printer.image_type"].as<std::string>(), imagew::IMAGE_TYPE_DEFAULT);
 		args.printer_view_command = vm["printer.view_command"].as<std::string>();

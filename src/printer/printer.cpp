@@ -1,9 +1,9 @@
 #include "printer/printer.h"
 
-#include <sdl/imgwriter.h>
 #include <core/sh2/sh2_bus.h>
 #include <core/sh2/sh2_local.h>
 #include <log/log.h>
+#include <sdl/imgwriter.h>
 
 #include <algorithm>
 #include <cmath>
@@ -35,6 +35,7 @@ constexpr static int PRINT_STATUS_OVERHEAT = 5;
 
 static fs::path output_dir;
 static int output_type;
+static float print_aspect_ratio = 0;
 static std::string view_command;
 
 static fs::path last_printed_path;
@@ -204,12 +205,12 @@ bool print_hook(uint32_t addr)
 			{
 				std::vector<uint8_t> data_doubled = double_pixel_data<uint8_t>(data, width, height);
 				print_success = imagew::save_image_8bpp(
-					output_type, print_path, width * 2, height * 2, &data_doubled[0], 256, palette
+					output_type, print_path, width * 2, height * 2, &data_doubled[0], 256, palette, false, print_aspect_ratio
 				);
 			}
 			else
 			{
-				print_success = imagew::save_image_8bpp(output_type, print_path, width, height, &data[0], 256, palette);
+				print_success = imagew::save_image_8bpp(output_type, print_path, width, height, &data[0], 256, palette, false, print_aspect_ratio);
 			}
 		}
 		if (pixel_format == 1)
@@ -225,11 +226,11 @@ bool print_hook(uint32_t addr)
 			{
 				std::vector<uint16_t> data_doubled = double_pixel_data<uint16_t>(data, width, height);
 				print_success =
-					imagew::save_image_16bpp(output_type, print_path, width * 2, height * 2, &data_doubled[0]);
+					imagew::save_image_16bpp(output_type, print_path, width * 2, height * 2, &data_doubled[0], false, print_aspect_ratio);
 			}
 			else
 			{
-				print_success = imagew::save_image_16bpp(output_type, print_path, width, height, &data[0]);
+				print_success = imagew::save_image_16bpp(output_type, print_path, width, height, &data[0], false, print_aspect_ratio);
 			}
 		}
 
@@ -285,6 +286,7 @@ void initialize(Config::SystemInfo& config)
 {
 	output_dir = config.emulator.image_save_directory;
 	output_type = config.emulator.printer_image_type;
+	print_aspect_ratio = config.emulator.printer_correct_aspect_ratio ? imagew::LOOPY_SEAL_PAR : 0;
 
 	view_command = config.emulator.printer_view_command;
 	view_command.erase(

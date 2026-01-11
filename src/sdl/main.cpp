@@ -62,7 +62,7 @@ void capture_mouse(bool cap)
 {
 	SDL_SetRelativeMouseMode(cap ? SDL_TRUE : SDL_FALSE);
 	mouse_captured = cap;
-	LoopyIO::set_controller_plugged(!cap, cap);
+	// LoopyIO::set_controller_plugged(!cap, cap);
 }
 
 bool is_mouse_captured()
@@ -415,6 +415,7 @@ int main(int argc, char** argv)
 	config.emulator.screenshot_image_type = args.screenshot_image_type;
 	config.emulator.printer_image_type = args.printer_image_type;
 	config.emulator.printer_view_command = args.printer_view_command;
+	config.emulator.printer_correct_aspect_ratio = args.printer_correct_aspect_ratio;
 
 	Log::set_level(args.verbose ? Log::VERBOSE : Log::INFO);
 

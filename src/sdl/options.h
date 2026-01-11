@@ -23,6 +23,7 @@ struct Args
 	int screenshot_image_type;
 
 	int printer_image_type;
+	bool printer_correct_aspect_ratio;
 	std::string printer_view_command;
 };
 
