@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #include <common/bswp.h>
 #include <core/config.h>
-#include <core/loopy_io.h>
 #include <core/system.h>
 #include <input/input.h>
 #include <log/log.h>
