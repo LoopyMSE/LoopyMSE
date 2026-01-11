@@ -154,6 +154,21 @@ void toggle_fullscreen()
 	}
 }
 
+void screenshot(int image_type, fs::path path)
+{
+	int w, h;
+	SDL_GetRendererOutputSize(screen.renderer, &w, &h);
+	SDL_Surface* screenshot = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGB24);
+	SDL_RenderReadPixels(screen.renderer, nullptr, screenshot->format->format, screenshot->pixels, screenshot->pitch);
+
+	if (image_type == imagew::IMAGE_TYPE_BMP)
+	{
+		SDL_SaveBMP(screenshot, path.string().c_str());
+	}
+
+	SDL_FreeSurface(screenshot);
+}
+
 static inline void set_draw_color_16bpp(uint16_t c)
 {
 	uint8_t r = ((c >> 10) & 31) * 255 / 31;
@@ -290,6 +305,13 @@ void initialize(Options::Args& args)
 }
 
 }  // namespace SDL
+
+fs::path get_full_screenshot_path(Config::SystemInfo& config, std::string prefix = "loopymse_")
+{
+	return config.emulator.image_save_directory / imagew::make_unique_name(prefix).replace_extension(
+													  imagew::image_extension(config.emulator.screenshot_image_type)
+												  );
+}
 
 std::string remove_extension(std::string file_path)
 {
@@ -533,16 +555,14 @@ int main(int argc, char** argv)
 				case SDLK_F10:
 					if (config.cart.is_loaded())
 					{
-						int screenshot_image_type = config.emulator.screenshot_image_type;
-						fs::path screenshot_filename(imagew::make_unique_name("loopymse_"));
-						screenshot_filename += imagew::image_extension(screenshot_image_type);
-
-						Log::info("Saving screenshot to %s", screenshot_filename.string().c_str());
 						Video::dump_current_frame(
-							screenshot_image_type, config.emulator.image_save_directory / screenshot_filename
+							config.emulator.screenshot_image_type, get_full_screenshot_path(config)
 						);
-
-						//Video::dump_all_bmps(screenshot_image_type, config.emulator.image_save_directory);
+						if (args.correct_aspect_ratio)
+						{
+							// Export both scaled and original, let user decide which they want
+							SDL::screenshot(config.emulator.screenshot_image_type, get_full_screenshot_path(config));
+						}
 					}
 					break;
 				case SDLK_F11:
