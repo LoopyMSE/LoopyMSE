@@ -158,12 +158,7 @@ void screenshot(int image_type, fs::path path)
 	SDL_GetRendererOutputSize(screen.renderer, &w, &h);
 	SDL_Surface* screenshot = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGB24);
 	SDL_RenderReadPixels(screen.renderer, nullptr, screenshot->format->format, screenshot->pixels, screenshot->pitch);
-
-	if (image_type == imagew::IMAGE_TYPE_BMP)
-	{
-		SDL_SaveBMP(screenshot, path.string().c_str());
-	}
-
+	imagew::save_surface(image_type, path, screenshot);
 	SDL_FreeSurface(screenshot);
 }
 

@@ -205,12 +205,15 @@ bool print_hook(uint32_t addr)
 			{
 				std::vector<uint8_t> data_doubled = double_pixel_data<uint8_t>(data, width, height);
 				print_success = imagew::save_image_8bpp(
-					output_type, print_path, width * 2, height * 2, &data_doubled[0], 256, palette, false, print_aspect_ratio
+					output_type, print_path, width * 2, height * 2, &data_doubled[0], 256, palette, false,
+					print_aspect_ratio
 				);
 			}
 			else
 			{
-				print_success = imagew::save_image_8bpp(output_type, print_path, width, height, &data[0], 256, palette, false, print_aspect_ratio);
+				print_success = imagew::save_image_8bpp(
+					output_type, print_path, width, height, &data[0], 256, palette, false, print_aspect_ratio
+				);
 			}
 		}
 		if (pixel_format == 1)
@@ -225,12 +228,15 @@ bool print_hook(uint32_t addr)
 			if (pixel_double == 1)
 			{
 				std::vector<uint16_t> data_doubled = double_pixel_data<uint16_t>(data, width, height);
-				print_success =
-					imagew::save_image_16bpp(output_type, print_path, width * 2, height * 2, &data_doubled[0], false, print_aspect_ratio);
+				print_success = imagew::save_image_16bpp(
+					output_type, print_path, width * 2, height * 2, &data_doubled[0], false, print_aspect_ratio
+				);
 			}
 			else
 			{
-				print_success = imagew::save_image_16bpp(output_type, print_path, width, height, &data[0], false, print_aspect_ratio);
+				print_success = imagew::save_image_16bpp(
+					output_type, print_path, width, height, &data[0], false, print_aspect_ratio
+				);
 			}
 		}
 

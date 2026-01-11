@@ -151,11 +151,11 @@ bool parse_config(fs::path config_path, Args& args)
 		("emulator.correct_aspect_ratio", po::value<bool>()->default_value(true), "Stretch display pixels to 4:3")
 		("emulator.crop_overscan", po::value<bool>()->default_value(true), "Crop border and overscan areas")
 		("emulator.antialias", po::value<bool>()->default_value(true), "Apply AA (recommended when used with aspect ratio correction)")
-		("emulator.screenshot_image_type", po::value<std::string>()->default_value("bmp"), "Image file type for screenshots");
+		("emulator.screenshot_image_type", po::value<std::string>()->default_value("png"), "Image file type for screenshots");
 
 	po::options_description printer_options("Printer");
 	printer_options.add_options()
-		("printer.image_type", po::value<std::string>()->default_value("bmp"), "Image file type for printed files")
+		("printer.image_type", po::value<std::string>()->default_value("png"), "Image file type for printed files")
 		("printer.view_command", po::value<std::string>()->default_value("OPEN"), "Command to run with printed files")
 		("printer.correct_aspect_ratio", po::value<bool>()->default_value(true), "Scale up print and stretch to same aspect ratio as Loopy Seals");
 

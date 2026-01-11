@@ -1,6 +1,6 @@
 #include "imgwriter.h"
 
-#include <SDL_surface.h>
+#include <SDL_image.h>
 #include <log/log.h>
 
 #include <algorithm>
@@ -12,6 +12,7 @@
 namespace SDL::ImageWriter
 {
 
+constexpr int JPG_QUALITY = 90;
 constexpr double PRINT_ASPECT_CORRECTION_PRESCALE = 4;
 
 int parse_image_type(std::string type, int default_)
@@ -21,13 +22,30 @@ int parse_image_type(std::string type, int default_)
 	{
 		return IMAGE_TYPE_BMP;
 	}
+	if (type == "jpg" || type == "jpeg" || type == ".jpg" || type == ".jpeg")
+	{
+		return IMAGE_TYPE_JPG;
+	}
+	if (type == "png" || type == ".png")
+	{
+		return IMAGE_TYPE_PNG;
+	}
 	return default_;
 }
 
 fs::path image_extension(int image_type)
 {
-	if (image_type == IMAGE_TYPE_BMP) return {".bmp"};
-	return {""};
+	switch (image_type)
+	{
+	case IMAGE_TYPE_BMP:
+		return {".bmp"};
+	case IMAGE_TYPE_JPG:
+		return {".jpg"};
+	case IMAGE_TYPE_PNG:
+		return {".png"};
+	default:
+		return {""};
+	}
 }
 
 fs::path make_unique_name(std::string prefix, std::string suffix)
@@ -41,14 +59,36 @@ fs::path make_unique_name(std::string prefix, std::string suffix)
 	return prefix + timestamp_buffer + "_" + std::to_string(unique_number++) + suffix;
 }
 
-bool write_image(
-	int image_type, fs::path path, uint32_t width, uint32_t height, uint32_t pixels_argb[], bool _transparent,
+bool save_surface(int image_type, fs::path path, SDL_Surface* surf)
+{
+	int status = -1;
+	switch (image_type)
+	{
+	case IMAGE_TYPE_PNG:
+		status = IMG_SavePNG(surf, path.string().c_str());
+		break;
+	case IMAGE_TYPE_JPG:
+		status = IMG_SaveJPG(surf, path.string().c_str(), JPG_QUALITY);
+		break;
+	case IMAGE_TYPE_BMP:
+	{
+		// alpha channel in bitmaps don't behave well with e.g. Preview.app
+		SDL_Surface* rgb = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_RGB24, 0);
+		status = SDL_SaveBMP(rgb, path.string().c_str());
+		SDL_FreeSurface(rgb);
+		break;
+	}
+	}
+	return 0 == status;
+}
+
+bool save_image_32bpp(
+	int image_type, fs::path path, uint32_t width, uint32_t height, uint32_t data[], bool _transparent,
 	double correct_aspect
 )
 {
-	SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormatFrom(
-		pixels_argb, (int)width, (int)height, 32, (int)width * 4, SDL_PIXELFORMAT_ARGB8888
-	);
+	SDL_Surface* surf =
+		SDL_CreateRGBSurfaceWithFormatFrom(data, (int)width, (int)height, 32, (int)width * 4, SDL_PIXELFORMAT_ARGB8888);
 
 	if (correct_aspect > 0)
 	{
@@ -65,11 +105,7 @@ bool write_image(
 		surf = scaled;
 	}
 
-	bool success = false;
-	if (image_type == IMAGE_TYPE_BMP)
-	{
-		success = 0 == SDL_SaveBMP(surf, path.string().c_str());
-	}
+	bool success = save_surface(image_type, path, surf);
 
 	// Should not free the pixel data since we created it with a *From
 	SDL_FreeSurface(surf);
@@ -101,7 +137,7 @@ bool save_image_16bpp(
 		data_argb[i] = color_16bpp_to_argb(data[i] | alpha_set);
 	}
 
-	return write_image(image_type, path, width, height, data_argb, transparent, correct_aspect);
+	return save_image_32bpp(image_type, path, width, height, data_argb, transparent, correct_aspect);
 }
 
 bool save_image_8bpp(
