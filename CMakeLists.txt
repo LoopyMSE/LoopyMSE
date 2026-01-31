@@ -5,7 +5,7 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
 project (LoopyMSE LANGUAGES C CXX ASM)
-set (PROJECT_VERSION 0.5.1)
+set (PROJECT_VERSION 0.5.2)
 set (PROJECT_DESCRIPTION "Loopy My Seal Emulator")
 set (PROJECT_HOMEPAGE_URL "https://github.com/LoopyMSE/LoopyMSE")
 set (PROJECT_ORG "LoopyMSE")
