@@ -292,7 +292,7 @@ void initialize(Config::SystemInfo& config)
 {
 	output_dir = config.emulator.image_save_directory;
 	output_type = config.emulator.printer_image_type;
-	print_aspect_ratio = config.emulator.printer_correct_aspect_ratio ? imagew::LOOPY_SEAL_PAR : 0;
+	print_aspect_ratio = config.emulator.printer_correct_aspect_ratio ? imagew::LOOPY_SEAL_ASPECT : 0;
 
 	view_command = config.emulator.printer_view_command;
 	view_command.erase(

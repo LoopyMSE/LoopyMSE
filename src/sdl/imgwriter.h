@@ -10,13 +10,13 @@ namespace fs = std::filesystem;
 namespace SDL::ImageWriter
 {
 
-constexpr int IMAGE_TYPE_BMP = 1;
-constexpr int IMAGE_TYPE_PNG = 2;
-constexpr int IMAGE_TYPE_JPG = 3;
-constexpr int IMAGE_TYPE_DEFAULT = IMAGE_TYPE_PNG;
+const int IMAGE_TYPE_BMP = 1;
+const int IMAGE_TYPE_PNG = 2;
+const int IMAGE_TYPE_JPG = 3;
+const int IMAGE_TYPE_DEFAULT = IMAGE_TYPE_PNG;
 
-constexpr double LOOPY_SEAL_PAR = 42.0 / 32.0;
-constexpr double LOOPY_SCREEN_PAR = 4.0 / 3.0;
+const double LOOPY_SEAL_ASPECT = 8.0 / 7.0;
+const double LOOPY_SCREEN_ASPECT = 4.0 / 3.0;
 
 int parse_image_type(std::string type, int _default);
 

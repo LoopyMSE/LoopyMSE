@@ -1,6 +1,6 @@
 #include "imgwriter.h"
 
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include <log/log.h>
 
 #include <algorithm>
@@ -11,9 +11,8 @@
 
 namespace SDL::ImageWriter
 {
-
-constexpr int JPG_QUALITY = 90;
-constexpr double PRINT_ASPECT_CORRECTION_PRESCALE = 4;
+const int JPG_QUALITY = 90;
+const double PRINT_ASPECT_CORRECTION_PRESCALE = 4;
 
 int parse_image_type(std::string type, int default_)
 {
