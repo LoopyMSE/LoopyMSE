@@ -5,14 +5,14 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
 project (LoopyMSE LANGUAGES C CXX ASM)
-set (PROJECT_VERSION 0.5.1)
+set (PROJECT_VERSION 0.5.2)
 set (PROJECT_DESCRIPTION "Loopy My Seal Emulator")
-set (PROJECT_HOMEPAGE_URL "https://github.com/PSI-Rockin/LoopyMSE")
-set (PROJECT_ORG "PSI")
+set (PROJECT_HOMEPAGE_URL "https://github.com/LoopyMSE/LoopyMSE")
+set (PROJECT_ORG "LoopyMSE")
 
 string(REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
-cmake_policy(SET CMP0167 NEW)
+#cmake_policy(SET CMP0167 NEW)
 
 # Boost program_options package, statically linked
 set(Boost_USE_STATIC_LIBS ON CACHE BOOL "" FORCE)
@@ -24,6 +24,7 @@ set (SDL_STATIC ON CACHE BOOL "" FORCE)
 set (SDL_SHARED OFF CACHE BOOL "" FORCE)
 set (SDL_TEST OFF CACHE BOOL "" FORCE)
 find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
 include_directories(LoopyMSE PRIVATE ${SDL2_INCLUDE_DIRS})
 
 set (DIST_DIR ${CMAKE_BINARY_DIR}/dist)

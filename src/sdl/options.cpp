@@ -5,12 +5,12 @@
 #include <fstream>
 #include <iostream>
 
-#include "common/imgwriter.h"
+#include "imgwriter.h"
 #include "input/input.h"
 #include "log/log.h"
 
 namespace po = boost::program_options;
-namespace imagew = Common::ImageWriter;
+namespace imagew = SDL::ImageWriter;
 
 namespace Options
 {
@@ -151,12 +151,13 @@ bool parse_config(fs::path config_path, Args& args)
 		("emulator.correct_aspect_ratio", po::value<bool>()->default_value(true), "Stretch display pixels to 4:3")
 		("emulator.crop_overscan", po::value<bool>()->default_value(true), "Crop border and overscan areas")
 		("emulator.antialias", po::value<bool>()->default_value(true), "Apply AA (recommended when used with aspect ratio correction)")
-		("emulator.screenshot_image_type", po::value<std::string>()->default_value("bmp"), "Image file type for screenshots");
+		("emulator.screenshot_image_type", po::value<std::string>()->default_value("png"), "Image file type for screenshots");
 
 	po::options_description printer_options("Printer");
 	printer_options.add_options()
-		("printer.image_type", po::value<std::string>()->default_value("bmp"), "Image file type for printed files")
-		("printer.view_command", po::value<std::string>()->default_value("OPEN"), "Command to run with printed files");
+		("printer.image_type", po::value<std::string>()->default_value("png"), "Image file type for printed files")
+		("printer.view_command", po::value<std::string>()->default_value("OPEN"), "Command to run with printed files")
+		("printer.correct_aspect_ratio", po::value<bool>()->default_value(true), "Scale up print and stretch to same aspect ratio as Loopy Seals");
 
 	po::options_description options;
 	options.add(key_options).add(button_options).add(emu_options).add(printer_options);
@@ -180,10 +181,11 @@ bool parse_config(fs::path config_path, Args& args)
 		args.antialias = vm["emulator.antialias"].as<bool>();
 		args.crop_overscan = vm["emulator.crop_overscan"].as<bool>();
 		args.int_scale = vm["emulator.int_scale"].as<int>();
+
 		args.screenshot_image_type = imagew::parse_image_type(
 			vm["emulator.screenshot_image_type"].as<std::string>(), imagew::IMAGE_TYPE_DEFAULT
 		);
-
+		args.printer_correct_aspect_ratio = vm["printer.correct_aspect_ratio"].as<bool>();
 		args.printer_image_type =
 			imagew::parse_image_type(vm["printer.image_type"].as<std::string>(), imagew::IMAGE_TYPE_DEFAULT);
 		args.printer_view_command = vm["printer.view_command"].as<std::string>();

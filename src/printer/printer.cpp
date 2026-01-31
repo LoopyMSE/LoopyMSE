@@ -1,6 +1,11 @@
 #include "printer/printer.h"
 
-#include <algorithm> 
+#include <core/sh2/sh2_bus.h>
+#include <core/sh2/sh2_local.h>
+#include <log/log.h>
+#include <sdl/imgwriter.h>
+
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <iomanip>
@@ -8,13 +13,8 @@
 #include <thread>
 #include <vector>
 
-#include <common/imgwriter.h>
-#include <core/sh2/sh2_bus.h>
-#include <core/sh2/sh2_local.h>
-#include <log/log.h>
-
 namespace fs = std::filesystem;
-namespace imagew = Common::ImageWriter;
+namespace imagew = SDL::ImageWriter;
 
 namespace Printer
 {
@@ -35,6 +35,7 @@ constexpr static int PRINT_STATUS_OVERHEAT = 5;
 
 static fs::path output_dir;
 static int output_type;
+static float print_aspect_ratio = 0;
 static std::string view_command;
 
 static fs::path last_printed_path;
@@ -57,7 +58,8 @@ void show_print_file(fs::path print_path)
 		bool has_command = false;
 #ifdef _WIN32
 		// Windows: system call: start "" <path>
-		cmd << "start " << "\"\" " << print_path;
+		cmd << "start "
+			<< "\"\" " << print_path;
 		has_command = true;
 #elif __APPLE__ && __MACH__
 		// OSX: system call: open <path> &
@@ -105,7 +107,7 @@ void show_print_file(fs::path print_path)
 		cmd << " " << print_path_quoted;
 	}
 
-	Log::info("[Printer] trying to open print with your specified view command...");	
+	Log::info("[Printer] trying to open print with your specified view command...");
 	std::thread t1(system_threadwrapper, cmd.str());
 	t1.detach();
 }
@@ -114,11 +116,11 @@ template <typename T>
 std::vector<T> double_pixel_data(std::vector<T> data, uint32_t width, uint32_t height)
 {
 	std::vector<T> data_doubled(width * height * 4);
-	for (int y = 0; y < height*2; y++)
+	for (int y = 0; y < height * 2; y++)
 	{
-		for (int x = 0; x < width*2; x++)
+		for (int x = 0; x < width * 2; x++)
 		{
-			data_doubled[y * (width * 2) + x] = data[(y/2) * width + (x/2)];
+			data_doubled[y * (width * 2) + x] = data[(y / 2) * width + (x / 2)];
 		}
 	}
 	return data_doubled;
@@ -142,17 +144,19 @@ bool print_hook(uint32_t addr)
 	if (addr != ADDR_PRINT) return false;
 
 	uint32_t sp = sh2.gpr[15];
-	uint32_t p1_data    = Bus::read32(sh2.gpr[4]);
+	uint32_t p1_data = Bus::read32(sh2.gpr[4]);
 	uint32_t p2_palette = Bus::read32(sh2.gpr[5]);
-	uint32_t p3_dims    = Bus::read32(sh2.gpr[6]);
-	uint32_t p4_unk     = sh2.gpr[7];
-	uint32_t p5_unk     = Bus::read32(sp);
-	uint32_t p6_format  = Bus::read8(Bus::read32(sp+4));
-	uint32_t p7_unk     = Bus::read32(sp+8);
-	uint32_t p8_first   = Bus::read32(sp+12);
-	Log::debug("[Printer] data=%08X, palette=%08X, dims=%08X, unkp4=%08X, unkp5=%08X, format=%02X, unkp7=%08X, first=%d",
-		p1_data, p2_palette, p3_dims, p4_unk, p5_unk, p6_format, p7_unk, p8_first);
-	
+	uint32_t p3_dims = Bus::read32(sh2.gpr[6]);
+	uint32_t p4_unk = sh2.gpr[7];
+	uint32_t p5_unk = Bus::read32(sp);
+	uint32_t p6_format = Bus::read8(Bus::read32(sp + 4));
+	uint32_t p7_unk = Bus::read32(sp + 8);
+	uint32_t p8_first = Bus::read32(sp + 12);
+	Log::debug(
+		"[Printer] data=%08X, palette=%08X, dims=%08X, unkp4=%08X, unkp5=%08X, format=%02X, unkp7=%08X, first=%d",
+		p1_data, p2_palette, p3_dims, p4_unk, p5_unk, p6_format, p7_unk, p8_first
+	);
+
 	if (output_dir.empty())
 	{
 		//Nowhere to save; return no-seal status, go to end of function (rts / _mov.l) after this instruction
@@ -161,7 +165,7 @@ bool print_hook(uint32_t addr)
 		sh2.pipeline_valid = false;
 		return false;
 	}
-	
+
 	bool print_success = false;
 	last_printed_path.clear();
 
@@ -200,11 +204,16 @@ bool print_hook(uint32_t addr)
 			if (pixel_double == 1)
 			{
 				std::vector<uint8_t> data_doubled = double_pixel_data<uint8_t>(data, width, height);
-				print_success = imagew::save_image_8bpp(output_type, print_path, width*2, height*2, &data_doubled[0], 256, palette);
+				print_success = imagew::save_image_8bpp(
+					output_type, print_path, width * 2, height * 2, &data_doubled[0], 256, palette, false,
+					print_aspect_ratio
+				);
 			}
 			else
 			{
-				print_success = imagew::save_image_8bpp(output_type, print_path, width, height, &data[0], 256, palette);
+				print_success = imagew::save_image_8bpp(
+					output_type, print_path, width, height, &data[0], 256, palette, false, print_aspect_ratio
+				);
 			}
 		}
 		if (pixel_format == 1)
@@ -215,15 +224,19 @@ bool print_hook(uint32_t addr)
 			{
 				data[i] = Bus::read16(p1_data + (i * 2));
 			}
-			
+
 			if (pixel_double == 1)
 			{
 				std::vector<uint16_t> data_doubled = double_pixel_data<uint16_t>(data, width, height);
-				print_success = imagew::save_image_16bpp(output_type, print_path, width*2, height*2, &data_doubled[0]);
+				print_success = imagew::save_image_16bpp(
+					output_type, print_path, width * 2, height * 2, &data_doubled[0], false, print_aspect_ratio
+				);
 			}
 			else
 			{
-				print_success = imagew::save_image_16bpp(output_type, print_path, width, height, &data[0]);
+				print_success = imagew::save_image_16bpp(
+					output_type, print_path, width, height, &data[0], false, print_aspect_ratio
+				);
 			}
 		}
 
@@ -279,10 +292,19 @@ void initialize(Config::SystemInfo& config)
 {
 	output_dir = config.emulator.image_save_directory;
 	output_type = config.emulator.printer_image_type;
+	print_aspect_ratio = config.emulator.printer_correct_aspect_ratio ? imagew::LOOPY_SEAL_ASPECT : 0;
 
 	view_command = config.emulator.printer_view_command;
-	view_command.erase(view_command.begin(), std::find_if(view_command.begin(), view_command.end(), [](unsigned char ch) { return !std::isspace(ch); }));
-	view_command.erase(std::find_if(view_command.rbegin(), view_command.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), view_command.end());
+	view_command.erase(
+		view_command.begin(),
+		std::find_if(view_command.begin(), view_command.end(), [](unsigned char ch) { return !std::isspace(ch); })
+	);
+	view_command.erase(
+		std::find_if(
+			view_command.rbegin(), view_command.rend(), [](unsigned char ch) { return !std::isspace(ch); }
+		).base(),
+		view_command.end()
+	);
 
 	SH2::add_hook(ADDR_MOTOR_MOVE, &motor_move_hook);
 	SH2::add_hook(ADDR_PRINT, &print_hook);
@@ -306,4 +328,4 @@ void shutdown()
 	Log::debug("[Printer] unregistered hooks");
 }
 
-}
+}  // namespace Printer

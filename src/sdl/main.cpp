@@ -1,10 +1,10 @@
 #include <SDL2/SDL.h>
 #include <common/bswp.h>
-#include <common/imgwriter.h>
 #include <core/config.h>
 #include <core/system.h>
 #include <input/input.h>
 #include <log/log.h>
+#include <sdl/imgwriter.h>
 #include <sound/sound.h>
 #include <video/video.h>
 
@@ -20,7 +20,7 @@
 #define PRESCALE_FACTOR 4
 #define MAX_WINDOW_INT_SCALE 10
 
-namespace imagew = Common::ImageWriter;
+namespace imagew = SDL::ImageWriter;
 
 namespace SDL
 {
@@ -152,6 +152,16 @@ void toggle_fullscreen()
 	}
 }
 
+void screenshot(int image_type, fs::path path)
+{
+	int w, h;
+	SDL_GetRendererOutputSize(screen.renderer, &w, &h);
+	SDL_Surface* screenshot = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_RGB24);
+	SDL_RenderReadPixels(screen.renderer, nullptr, screenshot->format->format, screenshot->pixels, screenshot->pitch);
+	imagew::save_surface(image_type, path, screenshot);
+	SDL_FreeSurface(screenshot);
+}
+
 static inline void set_draw_color_16bpp(uint16_t c)
 {
 	uint8_t r = ((c >> 10) & 31) * 255 / 31;
@@ -176,7 +186,7 @@ void update(uint16_t* display_output, int visible_scanlines, uint16_t background
 	int pitch;
 
 	// More efficient alternative to SDL_UpdateTexture(screen.texture, NULL, display_output, sizeof(uint16_t) * DISPLAY_WIDTH);
-	if (SDL_LockTexture(screen.framebuffer, NULL, &pixels, &pitch) == 0)
+	if (SDL_LockTexture(screen.framebuffer, nullptr, &pixels, &pitch) == 0)
 	{
 		memcpy(pixels, display_output, sizeof(uint16_t) * DISPLAY_WIDTH * DISPLAY_HEIGHT);
 		SDL_UnlockTexture(screen.framebuffer);
@@ -187,11 +197,11 @@ void update(uint16_t* display_output, int visible_scanlines, uint16_t background
 	{
 		SDL_SetRenderTarget(screen.renderer, screen.prescaled);
 		SDL_RenderClear(screen.renderer);
-		SDL_RenderCopy(screen.renderer, screen.framebuffer, NULL, NULL);
+		SDL_RenderCopy(screen.renderer, screen.framebuffer, nullptr, nullptr);
 	}
 
 	// Change target back to screen (must be done before querying renderer output size!)
-	SDL_SetRenderTarget(screen.renderer, NULL);
+	SDL_SetRenderTarget(screen.renderer, nullptr);
 	set_draw_color_16bpp(background_color);
 	SDL_RenderClear(screen.renderer);
 
@@ -285,9 +295,20 @@ void initialize(Options::Args& args)
 		// Nonfatal: continue without the mappings
 	}
 	open_first_controller();
+
+	// Mouse mappings don't really need configuration
+	Input::add_mouse_binding(SDL_BUTTON_LEFT, Input::MouseButton::MOUSE_L);
+	Input::add_mouse_binding(SDL_BUTTON_RIGHT, Input::MouseButton::MOUSE_R);
 }
 
 }  // namespace SDL
+
+fs::path get_full_screenshot_path(Config::SystemInfo& config, std::string prefix = "loopymse_")
+{
+	return config.emulator.image_save_directory / imagew::make_unique_name(prefix).replace_extension(
+													  imagew::image_extension(config.emulator.screenshot_image_type)
+												  );
+}
 
 std::string remove_extension(std::string file_path)
 {
@@ -413,6 +434,7 @@ int main(int argc, char** argv)
 	config.emulator.screenshot_image_type = args.screenshot_image_type;
 	config.emulator.printer_image_type = args.printer_image_type;
 	config.emulator.printer_view_command = args.printer_view_command;
+	config.emulator.printer_correct_aspect_ratio = args.printer_correct_aspect_ratio;
 
 	Log::set_level(args.verbose ? Log::VERBOSE : Log::INFO);
 
@@ -478,20 +500,19 @@ int main(int argc, char** argv)
 
 	SDL::initialize(args);
 
-	constexpr int framerate_target = 60;  //TODO: get this from Video if it can be changed (e.g. for PAL mode)
-	constexpr int framerate_max_lag = 5;
-	int last_frame_ticks = SDL_GetPerformanceCounter();
-
+	uint64_t last_frame_ticks = SDL_GetPerformanceCounter();
 	while (!has_quit)
 	{
+		constexpr int framerate_target = 60;  //TODO: get this from Video if it can be changed (e.g. for PAL mode)
+		constexpr int framerate_max_lag = 5;
 		//Check how much time passed since we drew the last frame
-		int ticks_per_frame = SDL_GetPerformanceFrequency() / framerate_target;
-		int now_ticks = SDL_GetPerformanceCounter();
-		int ticks_since_last_frame = now_ticks - last_frame_ticks;
+		uint64_t ticks_per_frame = SDL_GetPerformanceFrequency() / framerate_target;
+		uint64_t now_ticks = SDL_GetPerformanceCounter();
+		uint64_t ticks_since_last_frame = now_ticks - last_frame_ticks;
 
 		//See how many we need to draw
 		//If we're vsynced to a 60Hz display with no lag, this should stay at 1 most of the time
-		int draw_frames = ticks_since_last_frame / ticks_per_frame;
+		uint64_t draw_frames = ticks_since_last_frame / ticks_per_frame;
 		last_frame_ticks += draw_frames * ticks_per_frame;
 
 		//If too far behind, draw one frame and start timing again from now
@@ -531,16 +552,14 @@ int main(int argc, char** argv)
 				case SDLK_F10:
 					if (config.cart.is_loaded())
 					{
-						int screenshot_image_type = config.emulator.screenshot_image_type;
-						fs::path screenshot_filename(imagew::make_unique_name("loopymse_"));
-						screenshot_filename += imagew::image_extension(screenshot_image_type);
-
-						Log::info("Saving screenshot to %s", screenshot_filename.string().c_str());
 						Video::dump_current_frame(
-							screenshot_image_type, config.emulator.image_save_directory / screenshot_filename
+							config.emulator.screenshot_image_type, get_full_screenshot_path(config)
 						);
-
-						//Video::dump_all_bmps(screenshot_image_type, config.emulator.image_save_directory);
+						if (args.correct_aspect_ratio)
+						{
+							// Export both scaled and original, let user decide which they want
+							SDL::screenshot(config.emulator.screenshot_image_type, get_full_screenshot_path(config));
+						}
 					}
 					break;
 				case SDLK_F11:

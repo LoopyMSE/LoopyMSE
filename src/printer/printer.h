@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
-
 #include <core/config.h>
+
+#include <cstdint>
 
 namespace Printer
 {
@@ -13,4 +13,4 @@ void shutdown();
 bool motor_move_hook(uint32_t addr);
 bool printer_hook(uint32_t addr);
 
-}
+}  // namespace Printer

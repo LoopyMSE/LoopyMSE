@@ -1,5 +1,5 @@
+#include <sdl/imgwriter.h>
 #include <common/bswp.h>
-#include <common/imgwriter.h>
 #include <common/wordops.h>
 #include <core/loopy_io.h>
 #include <core/memory.h>
@@ -16,7 +16,7 @@
 #include "video/render.h"
 #include "video/vdp_local.h"
 
-namespace imagew = Common::ImageWriter;
+namespace imagew = SDL::ImageWriter;
 
 namespace Video
 {
