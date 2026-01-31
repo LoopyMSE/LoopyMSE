@@ -1,6 +1,5 @@
 #include "input/input.h"
 
-#include <SDL_mouse.h>
 #include <core/loopy_io.h>
 
 #include <unordered_map>
@@ -10,6 +9,7 @@ namespace Input
 
 static std::unordered_map<int, PadButton> key_bindings;
 static std::unordered_map<int, PadButton> controller_bindings;
+static std::unordered_map<int, MouseButton> mouse_bindings;
 
 void initialize()
 {
@@ -48,14 +48,14 @@ void set_key_state(int key, bool pressed)
 
 void set_mouse_button_state(int button, bool pressed)
 {
-	if (button == SDL_BUTTON_LEFT)
+	auto binding = mouse_bindings.find(button);
+	if (binding == mouse_bindings.end())
 	{
-		LoopyIO::update_mouse_buttons(MOUSE_L, pressed);
+		return;
 	}
-	if (button == SDL_BUTTON_RIGHT)
-	{
-		LoopyIO::update_mouse_buttons(MOUSE_R, pressed);
-	}
+
+	MouseButton mouse_button = binding->second;
+	LoopyIO::update_mouse_buttons(mouse_button, pressed);
 }
 
 void move_mouse(int delta_x, int delta_y)
@@ -71,6 +71,11 @@ void add_key_binding(int code, PadButton pad_button)
 void add_controller_binding(int code, PadButton pad_button)
 {
 	controller_bindings.emplace(code, pad_button);
+}
+
+void add_mouse_binding(int code, MouseButton mouse_button)
+{
+	mouse_bindings.emplace(code, mouse_button);
 }
 
 }  // namespace Input

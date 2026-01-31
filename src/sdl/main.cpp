@@ -295,6 +295,10 @@ void initialize(Options::Args& args)
 		// Nonfatal: continue without the mappings
 	}
 	open_first_controller();
+
+	// Mouse mappings don't really need configuration
+	Input::add_mouse_binding(SDL_BUTTON_LEFT, Input::MouseButton::MOUSE_L);
+	Input::add_mouse_binding(SDL_BUTTON_RIGHT, Input::MouseButton::MOUSE_R);
 }
 
 }  // namespace SDL
