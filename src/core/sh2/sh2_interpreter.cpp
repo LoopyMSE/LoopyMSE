@@ -994,7 +994,7 @@ static void shlr16(uint16_t instr)
 static void bf(uint16_t instr)
 {
 	int32_t offs = (int32_t)(int8_t)(instr & 0xFF);
-	offs <<= 1;
+	offs *= 2;
 
 	uint32_t dst = sh2.pc + offs;
 	if (!GET_T())
@@ -1006,7 +1006,7 @@ static void bf(uint16_t instr)
 static void bt(uint16_t instr)
 {
 	int32_t offs = (int32_t)(int8_t)(instr & 0xFF);
-	offs <<= 1;
+	offs *= 2;
 
 	uint32_t dst = sh2.pc + offs;
 	if (GET_T())
@@ -1018,7 +1018,7 @@ static void bt(uint16_t instr)
 static void bra(uint16_t instr)
 {
 	int32_t offs = (instr & 0x7FF) | ((instr & 0x800) ? 0xFFFFF800 : 0);
-	offs <<= 1;
+	offs *= 2;
 
 	uint32_t dst = sh2.pc + offs;
 	handle_jump(dst, true);
@@ -1027,7 +1027,7 @@ static void bra(uint16_t instr)
 static void bsr(uint16_t instr)
 {
 	int32_t offs = (instr & 0x7FF) | ((instr & 0x800) ? 0xFFFFF800 : 0);
-	offs <<= 1;
+	offs *= 2;
 
 	sh2.pr = sh2.pc;
 	uint32_t dst = sh2.pc + offs;
