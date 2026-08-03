@@ -27,7 +27,7 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 include_directories(LoopyMSE PRIVATE ${SDL2_INCLUDE_DIRS})
 
-set (DIST_DIR ${CMAKE_BINARY_DIR}/dist)
+set (DIST_DIR ${PROJECT_BINARY_DIR}/dist)
 set (ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 
 add_subdirectory (src)

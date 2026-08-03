@@ -17,6 +17,7 @@ if (WIN32)
     target_sources(LoopyMSE PRIVATE "windows.rc")
     target_link_options(LoopyMSE PRIVATE -mwindows -static-libgcc -static-libstdc++)
 elseif (APPLE)
+    set(CMAKE_MACOSX_RPATH ON)
     set(ICON_NAME "macos.icns")
     set(ICON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${ICON_NAME})
     set_source_files_properties(${ICON_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
@@ -26,7 +27,7 @@ elseif (APPLE)
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 endif ()
 
-target_link_libraries(LoopyMSE PRIVATE core SDL2::SDL2-static SDL2_image::SDL2_image-static Boost::program_options)
+target_link_libraries(LoopyMSE PRIVATE core SDL2::SDL2 SDL2_image::SDL2_image Boost::program_options)
 
 # INSTALLATION
 
@@ -51,12 +52,20 @@ if(WIN32)
     install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_BIOS.BIN_HERE__\")")
     install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_SOUNDBIOS.BIN_HERE__\")")
 elseif(APPLE)
-    install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
-        DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Frameworks)
     install(DIRECTORY ${ASSETS_DIR}/
         DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
     install(FILES ${ICON_PATH}
         DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
     install(FILES ${ASSETS_DIR}/README.md 
         DESTINATION ${DIST_DIR})
+
+    # This copies .dylibs to Frameworks/ but the system will not find them there as it's not searching there:
+    # install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
+    #     DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Frameworks)
+
+    # This copies AND relocates the libraries
+    install(CODE "
+        include(BundleUtilities)
+        fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/lib;/usr/local/opt/lib\" \"\")
+    ")
 endif()
