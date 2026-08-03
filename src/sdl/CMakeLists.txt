@@ -27,6 +27,7 @@ elseif (APPLE)
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 endif ()
 
+#target_link_libraries(LoopyMSE PRIVATE core SDL2::SDL2-static SDL2_image::SDL2_image-static Boost::program_options)
 target_link_libraries(LoopyMSE PRIVATE core SDL2::SDL2 SDL2_image::SDL2_image Boost::program_options)
 
 # INSTALLATION
@@ -37,7 +38,7 @@ install(TARGETS LoopyMSE
         BUNDLE DESTINATION ${DIST_DIR})
 
 if(WIN32)
-    cmake_policy(SET CMP0207 NEW)
+    # cmake_policy(SET CMP0207 NEW)
     get_filename_component(WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
@@ -45,9 +46,8 @@ if(WIN32)
         PRE_EXCLUDE_REGEXES
             "api-ms-.*"
             "ext-ms-.*"
-        POST_EXCLUDE_REGEXES
-            ".*[\\\\/]Windows[\\\\/]System32[\\\\/].*"
-            ".*[\\\\/]Windows[\\\\/]SysWOW64[\\\\/].*"
+    	POST_EXCLUDE_REGEXES
+	    	[[.*(\\|/)system32(\\|/).*\.dll]]
         )
     install(DIRECTORY ${ASSETS_DIR}/
             DESTINATION ${DIST_DIR})
