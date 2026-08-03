@@ -37,10 +37,11 @@ install(TARGETS LoopyMSE
         BUNDLE DESTINATION ${DIST_DIR})
 
 if(WIN32)
+    get_filename_component(WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
+    message(DEBUG "Looking for deps in ${WIN_BUILDTOOLS_DIR}")
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
-        # DIRECTORIES
-        #     "C:/msys64/mingw64/bin"
+        DIRECTORIES ${WIN_BUILDTOOLS_DIR}
         PRE_EXCLUDE_REGEXES
             "api-ms-"
             "ext-ms-"
@@ -49,8 +50,6 @@ if(WIN32)
     )
     install(DIRECTORY ${ASSETS_DIR}/
             DESTINATION ${DIST_DIR})
-    install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_BIOS.BIN_HERE__\")")
-    install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_SOUNDBIOS.BIN_HERE__\")")
 elseif(APPLE)
     install(DIRECTORY ${ASSETS_DIR}/
         DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
@@ -69,3 +68,5 @@ elseif(APPLE)
         fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/lib;/usr/local/opt/lib;/opt/homebrew/lib;/opt/homebrew/opt/lib\" \"\")
     ")
 endif()
+install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_BIOS.BIN_HERE__\")")
+install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_SOUNDBIOS.BIN_HERE__\")")
