@@ -15,14 +15,8 @@ target_compile_definitions(LoopyMSE PRIVATE
 
 if (WIN32)
     target_sources(LoopyMSE PRIVATE "windows.rc")
-    target_link_options(LoopyMSE PRIVATE
-        -mwindows
-        -static-libgcc
-        -static-libstdc++
-    )
-endif ()
-
-if (APPLE)
+    target_link_options(LoopyMSE PRIVATE -mwindows -static-libgcc -static-libstdc++)
+elseif (APPLE)
     set(ICON_NAME "macos.icns")
     set(ICON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${ICON_NAME})
     set_source_files_properties(${ICON_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
