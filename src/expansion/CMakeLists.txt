@@ -5,4 +5,4 @@ add_library (expansion STATIC
 	"msm665x/msm665x.cpp"
 )
 
-target_link_libraries (expansion PRIVATE SDL2::SDL2)
+target_link_libraries (expansion PRIVATE SDL2)
