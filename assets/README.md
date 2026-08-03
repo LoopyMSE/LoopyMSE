@@ -44,8 +44,8 @@ Default controls (remap in `loopymse.ini`):
 | B     | X        |
 | C     | C        |
 | D     | V        |
-| L     | A        |
-| R     | S        |
+| L     | Q        |
+| R     | W        |
 | Start | Enter    |
 
 Additionally, these special functions are available.

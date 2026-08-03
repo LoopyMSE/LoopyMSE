@@ -705,6 +705,8 @@ int main(int argc, char** argv)
 					is_paused = false;
 					last_frame_ticks = INT_MAX;
 				}
+
+				SDL_free(e.drop.file);
 				break;
 			}
 		}

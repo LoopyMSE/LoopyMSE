@@ -127,7 +127,7 @@ bool save_image_16bpp(
 )
 {
 	unsigned int num_pixels = width * height;
-	uint32_t data_argb[num_pixels];
+	std::vector<uint32_t> data_argb(num_pixels);
 
 	uint16_t alpha_set = transparent ? 0 : 0x8000;
 
@@ -136,7 +136,7 @@ bool save_image_16bpp(
 		data_argb[i] = color_16bpp_to_argb(data[i] | alpha_set);
 	}
 
-	return save_image_32bpp(image_type, path, width, height, data_argb, transparent, correct_aspect);
+	return save_image_32bpp(image_type, path, width, height, data_argb.data(), transparent, correct_aspect);
 }
 
 bool save_image_8bpp(
@@ -145,7 +145,7 @@ bool save_image_8bpp(
 )
 {
 	unsigned int num_pixels = width * height;
-	uint16_t data_16bpp[num_pixels];
+	std::vector<uint16_t> data_16bpp(num_pixels);
 
 	for (int i = 0; i < num_pixels; i++)
 	{
@@ -154,7 +154,7 @@ bool save_image_8bpp(
 		data_16bpp[i] = palette[pixel];
 	}
 
-	return save_image_16bpp(image_type, path, width, height, data_16bpp, transparent, correct_aspect);
+	return save_image_16bpp(image_type, path, width, height, data_16bpp.data(), transparent, correct_aspect);
 }
 
 }  // namespace SDL::ImageWriter
