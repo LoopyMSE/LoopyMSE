@@ -66,6 +66,6 @@ elseif(APPLE)
     # This copies AND relocates the libraries
     install(CODE "
         include(BundleUtilities)
-        fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/lib;/usr/local/opt/lib\" \"\")
+        fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/lib;/usr/local/opt/lib;/opt/homebrew/lib;/opt/homebrew/opt/lib\" \"\")
     ")
 endif()

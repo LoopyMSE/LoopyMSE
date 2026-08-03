@@ -12,17 +12,15 @@ set (PROJECT_ORG "LoopyMSE")
 
 string(REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
-#cmake_policy(SET CMP0167 NEW)
-
 # Boost program_options package, statically linked
 set(Boost_USE_STATIC_LIBS ON CACHE BOOL "" FORCE)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
-# SDL2, statically linked
+# SDL2 
 add_compile_definitions (SDL_MAIN_HANDLED) # Prevents SDL from touching main()
-set (SDL_STATIC ON CACHE BOOL "" FORCE)
-set (SDL_SHARED OFF CACHE BOOL "" FORCE)
-set (SDL_TEST OFF CACHE BOOL "" FORCE)
+# set (SDL_STATIC ON CACHE BOOL "" FORCE)
+# set (SDL_SHARED OFF CACHE BOOL "" FORCE)
+# set (SDL_TEST OFF CACHE BOOL "" FORCE)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 include_directories(LoopyMSE PRIVATE ${SDL2_INCLUDE_DIRS})
