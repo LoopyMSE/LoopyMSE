@@ -37,16 +37,18 @@ install(TARGETS LoopyMSE
         BUNDLE DESTINATION ${DIST_DIR})
 
 if(WIN32)
+    cmake_policy(SET CMP0207 NEW)
     get_filename_component(WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
         DIRECTORIES ${WIN_BUILDTOOLS_DIR}
         PRE_EXCLUDE_REGEXES
-            "api-ms-"
-            "ext-ms-"
+            "api-ms-.*"
+            "ext-ms-.*"
         POST_EXCLUDE_REGEXES
-            ".*[\\\\/]System32[\\\\/].*"
-    )
+            ".*[\\\\/]Windows[\\\\/]System32[\\\\/].*"
+            ".*[\\\\/]Windows[\\\\/]SysWOW64[\\\\/].*"
+        )
     install(DIRECTORY ${ASSETS_DIR}/
             DESTINATION ${DIST_DIR})
 elseif(APPLE)
@@ -64,7 +66,7 @@ elseif(APPLE)
     # This copies AND relocates the libraries
     install(CODE "
         include(BundleUtilities)
-        fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/lib;/usr/local/opt/lib;/opt/homebrew/lib;/opt/homebrew/opt/lib\" \"\")
+        fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
     ")
 endif()
 install(CODE "file(TOUCH \"${DIST_DIR}/__PLACE_BIOS.BIN_HERE__\")")
