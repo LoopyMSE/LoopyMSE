@@ -76,7 +76,18 @@ elseif (APPLE)
     # This copies AND relocates the libraries
     install (CODE "
         include (BundleUtilities)
-        fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${PROJECT_BINARY_DIR}/_deps/sdl2-build;${PROJECT_BINARY_DIR}/_deps/sdl2_image-build;/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
+        fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${sdl2_BINARY_DIR};${sdl2_image_BINARY_DIR};/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
+    ")
+
+    # Must (re)sign after relocating dylibs. Not actually trusted or notarized as that requires Apple gatekeeping & fees
+    install(CODE "
+        execute_process(
+            COMMAND codesign
+                --deep
+                --force
+                --sign -
+                \"${DIST_DIR}/LoopyMSE.app\"
+        )
     ")
 endif ()
 
