@@ -47,6 +47,7 @@ jobs:
       run: sudo apt update && sudo apt install -y libsdl2-dev libsdl2-image-dev libboost-all-dev cmake
 
     - name: Dependencies (Windows)
+      id: msys2
       uses: msys2/setup-msys2@v2
       if: startsWith(matrix.os, 'windows-')
       with:
@@ -105,6 +106,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DMSYS2_LOCATION=${{ steps.msys2.outputs.msys2-location }}
         -S ${{ github.workspace }}
 
     - name: Build

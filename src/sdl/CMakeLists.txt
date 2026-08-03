@@ -38,7 +38,6 @@ install(TARGETS LoopyMSE
 
 if(WIN32)
     get_filename_component(WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
-    message(DEBUG "Looking for deps in ${WIN_BUILDTOOLS_DIR}")
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
         DIRECTORIES ${WIN_BUILDTOOLS_DIR}
@@ -46,7 +45,7 @@ if(WIN32)
             "api-ms-"
             "ext-ms-"
         POST_EXCLUDE_REGEXES
-            ".*/System32/.*"
+            ".*[\\\\/]System32[\\\\/].*"
     )
     install(DIRECTORY ${ASSETS_DIR}/
             DESTINATION ${DIST_DIR})
