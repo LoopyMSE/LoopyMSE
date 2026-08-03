@@ -46,17 +46,24 @@ install (TARGETS LoopyMSE
 )
 
 if (WIN32)
-    install (DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR})
+    install(DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR})
+    # Find anything that MSYS2/build toolchain provided that we haven't statically linked already
+    # Currently this is one: libwinpthread-1.dll, we could just call that out and skip the detection
     get_filename_component (WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
-        DIRECTORIES ${WIN_BUILDTOOLS_DIR}
+        DIRECTORIES 
+            ${WIN_BUILDTOOLS_DIR}
         PRE_EXCLUDE_REGEXES
             "api-ms-.*"
             "ext-ms-.*"
     	POST_EXCLUDE_REGEXES
 	    	[[.*(\\|/)system32(\\|/).*\.dll]]
     )
+    # We know exactly where this is and we know we need it
+    install(FILES $<TARGET_FILE:SDL2> DESTINATION ${DIST_DIR})
+    # Image is already linked in, against SDL2?
+    # install(FILES $<TARGET_FILE:SDL2_image> DESTINATION ${DIST_DIR})
 elseif (APPLE)
     install (DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
     install (FILES ${ICON_PATH} DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
