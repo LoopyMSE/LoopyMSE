@@ -15,7 +15,7 @@ Game support notes:
 - Wanwan has no PCM sample support, and seems to crackle on dialog sfx (same timing issue?)
 */
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <common/wordops.h>
 #include <core/timing.h>
 #include <log/log.h>

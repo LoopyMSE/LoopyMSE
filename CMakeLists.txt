@@ -58,7 +58,6 @@ FetchContent_Declare (SDL2_image
 )
 FetchContent_MakeAvailable (SDL2_image)
 
-
 set (DIST_DIR ${PROJECT_BINARY_DIR}/dist)
 set (ASSETS_DIR ${PROJECT_SOURCE_DIR}/assets)
 

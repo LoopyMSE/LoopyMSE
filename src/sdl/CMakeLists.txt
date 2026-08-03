@@ -7,6 +7,13 @@ add_executable (LoopyMSE
         "main.cpp"
 )
 
+target_link_libraries (LoopyMSE PRIVATE
+    core
+    SDL2
+    SDL2_image
+    Boost::program_options
+)
+
 target_compile_definitions (LoopyMSE PRIVATE
         PROJECT_NAME="${PROJECT_NAME}"
         PROJECT_ORG="${PROJECT_ORG}"
@@ -29,12 +36,6 @@ elseif (APPLE)
     )
 endif ()
 
-target_link_libraries (LoopyMSE PRIVATE
-    core
-    SDL2
-    SDL2_image
-    Boost::program_options
-)
 
 # INSTALLATION
 
@@ -67,11 +68,11 @@ elseif (APPLE)
 
     # This copies AND relocates the libraries
     install (CODE "
-        include(BundleUtilities)
-        fixup_bundle(\"${DIST_DIR}/LoopyMSE.app\" \"\" \"/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
+        include (BundleUtilities)
+        fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${PROJECT_BINARY_DIR}/_deps/sdl2-build;${PROJECT_BINARY_DIR}/_deps/sdl2_image-build;/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
     ")
 endif ()
 
 # Touch these files as a reminder that no IP is shipped with LoopyMSE
-install (CODE "file(TOUCH \"${DIST_DIR}/__PLACE_BIOS.BIN_HERE__\")")
-install (CODE "file(TOUCH \"${DIST_DIR}/__PLACE_SOUNDBIOS.BIN_HERE__\")")
+install (CODE "file (TOUCH \"${DIST_DIR}/__PLACE_BIOS.BIN_HERE__\")")
+install (CODE "file (TOUCH \"${DIST_DIR}/__PLACE_SOUNDBIOS.BIN_HERE__\")")

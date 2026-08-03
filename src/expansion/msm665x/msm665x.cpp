@@ -1,6 +1,6 @@
 #include "msm665x.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <algorithm>
 #include <filesystem>

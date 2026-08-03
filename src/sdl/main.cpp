@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <common/bswp.h>
 #include <core/config.h>
 #include <core/system.h>
