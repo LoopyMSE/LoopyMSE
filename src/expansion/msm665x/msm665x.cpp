@@ -1,6 +1,7 @@
 #include "msm665x.h"
 
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 #include <iostream>
 #include <unordered_set>
