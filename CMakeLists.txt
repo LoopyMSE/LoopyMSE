@@ -16,18 +16,22 @@ string (REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_
 include (FetchContent)
 
 # libboost used for program_options
-# currently found via packager + statically linked
+# currently binaries are fetched via packager + statically linked in at build time,
+# as we have had no issues with this so far and Boost is a large monolithic thing to build, and we don't need to customize anything
 set (Boost_USE_STATIC_LIBS ON CACHE BOOL "" FORCE)
 find_package (Boost REQUIRED COMPONENTS program_options)
 
 # SDL2, SDL2_image
-# source fetched by CMake
-# dynamically linked
+# Due to package managers pulling shenanigans like replacing SDL2 with SDL2-compat,
+# and because a non-customized sdl2-image build will indlude absurd number of dependencies for unused image formats,
+# we use CMake to fetch and build these from source
 set (SDL_TESTS OFF CACHE BOOL "" FORCE)
 set (SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
 set (SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+# Static linking IS an option, however, since we are already in the business of bundling dependencies for distribution,
+# for now we'll bundle our own SDL2.dll
 set (SDL_STATIC OFF CACHE BOOL "" FORCE)
-# Required for SDL2_image to find?
 set (SDL_SHARED ON CACHE BOOL "" FORCE)
 
 add_compile_definitions (SDL_MAIN_HANDLED) # Prevents SDL from touching main()

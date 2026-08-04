@@ -81,19 +81,6 @@ elseif (APPLE)
         include (BundleUtilities)
         fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${sdl2_BINARY_DIR};${sdl2_image_BINARY_DIR};/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
     ")
-
-    # (re)sign after relocating dylibs
-    # (Is this actually necessary???)
-    # Not actually trusted or notarized as that requires Apple gatekeeping & fees
-    install(CODE "
-        execute_process(
-            COMMAND codesign
-                --deep
-                --force
-                --sign -
-                \"${DIST_DIR}/LoopyMSE.app\"
-        )
-    ")
 endif ()
 
 # Touch these files as a reminder that no IP is shipped with LoopyMSE
