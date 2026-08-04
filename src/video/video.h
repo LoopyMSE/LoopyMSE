@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <string>
 
-namespace fs = std::filesystem;
-
 namespace Video
 {
 
@@ -65,8 +63,9 @@ int get_display_scanlines();
 uint16_t get_background_color();
 uint16_t* get_display_output();
 
-void dump_all_bmps(int image_type, fs::path base_path);	 //TEMP ADDED
-void dump_current_frame(int image_type, fs::path path);
+//Private internal use only! Screenshots should use get_display_output()
+void dump_all_bmps();
+void dump_current_frame(std::string path);
 void dump_for_serial();
 
 //TODO: should these MMIO accessors be moved to a different file?

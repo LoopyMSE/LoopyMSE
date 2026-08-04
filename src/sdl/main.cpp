@@ -552,8 +552,10 @@ int main(int argc, char** argv)
 				case SDLK_F10:
 					if (config.cart.is_loaded())
 					{
-						Video::dump_current_frame(
-							config.emulator.screenshot_image_type, get_full_screenshot_path(config)
+						// Raw video buffer
+						imagew::save_image_16bpp(
+							config.emulator.screenshot_image_type, get_full_screenshot_path(config),
+							Video::DISPLAY_WIDTH, Video::get_display_scanlines(), Video::get_display_output()
 						);
 						if (args.correct_aspect_ratio)
 						{
