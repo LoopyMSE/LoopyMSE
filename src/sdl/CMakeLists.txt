@@ -48,7 +48,7 @@ install (TARGETS LoopyMSE
 if (WIN32)
     install(DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR})
     # Find anything that MSYS2/build toolchain provided that we haven't statically linked already
-    # Currently this is one: libwinpthread-1.dll, we could just call that out and skip the detection
+    # Currently this should be just one: libwinpthread-1.dll
     get_filename_component (WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
@@ -62,9 +62,10 @@ if (WIN32)
     	POST_EXCLUDE_REGEXES
 	    	[[.*(\\|/)system32(\\|/).*\.dll]]
     )
-    # We know exactly where this is and we know we need it
+    # We know exactly where SDL2.dll is and we know we need it
+    # This may be redundant to the step above, but (doing this last) is good insurance that it's not shipping an incorrect SDL2.dll provided by the system
     install(FILES $<TARGET_FILE:SDL2> DESTINATION ${DIST_DIR})
-    # Image is already linked in, against SDL2?
+    # Image is already linked in, against SDL2? Seems not to need this even when not found
     # install(FILES $<TARGET_FILE:SDL2_image> DESTINATION ${DIST_DIR})
 elseif (APPLE)
     install (DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
@@ -81,7 +82,9 @@ elseif (APPLE)
         fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${sdl2_BINARY_DIR};${sdl2_image_BINARY_DIR};/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
     ")
 
-    # Must (re)sign after relocating dylibs. Not actually trusted or notarized as that requires Apple gatekeeping & fees
+    # (re)sign after relocating dylibs
+    # (Is this actually necessary???)
+    # Not actually trusted or notarized as that requires Apple gatekeeping & fees
     install(CODE "
         execute_process(
             COMMAND codesign

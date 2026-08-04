@@ -51,10 +51,13 @@ set (SDL2IMAGE_TIF OFF CACHE BOOL "" FORCE)
 set (SDL2IMAGE_PNG ON CACHE BOOL "" FORCE)
 set (SDL2IMAGE_JPG ON CACHE BOOL "" FORCE)
 
+set (SDL2IMAGE_VENDORED OFF CACHE BOOL "" FORCE)
 FetchContent_Declare (SDL2_image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
     GIT_TAG release-2.8.12
     GIT_SHALLOW TRUE
+    # For PNG/JPEG with vendored off we shouldn't need to fetch any image libraries from submodules, speeds build time
+    GIT_SUBMODULES ""
 )
 FetchContent_MakeAvailable (SDL2_image)
 
