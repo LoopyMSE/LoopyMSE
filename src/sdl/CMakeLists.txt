@@ -62,11 +62,10 @@ if (WIN32)
     	POST_EXCLUDE_REGEXES
 	    	[[.*(\\|/)system32(\\|/).*\.dll]]
     )
-    # We know exactly where SDL2.dll is and we know we need it
+    # We know exactly where SDL2.dll, SDL2_image.dll are and we know we need them
     # This may be redundant to the step above, but (doing this last) is good insurance that it's not shipping an incorrect SDL2.dll provided by the system
     install (FILES $<TARGET_FILE:SDL2> DESTINATION ${DIST_DIR})
-    # Image is already linked in, against SDL2? Seems not to need this even when not found
-    # install (FILES $<TARGET_FILE:SDL2_image> DESTINATION ${DIST_DIR})
+    install (FILES $<TARGET_FILE:SDL2_image> DESTINATION ${DIST_DIR})
 elseif (APPLE)
     install (DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
     install (FILES ${ICON_PATH} DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
