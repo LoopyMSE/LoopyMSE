@@ -15,10 +15,10 @@ target_link_libraries (LoopyMSE PRIVATE
 )
 
 target_compile_definitions (LoopyMSE PRIVATE
-        PROJECT_NAME="${PROJECT_NAME}"
-        PROJECT_ORG="${PROJECT_ORG}"
-        PROJECT_DESCRIPTION="${PROJECT_DESCRIPTION}"
-        PROJECT_VERSION="${PROJECT_VERSION}"
+    PROJECT_NAME="${PROJECT_NAME}"
+    PROJECT_ORG="${PROJECT_ORG}"
+    PROJECT_DESCRIPTION="${PROJECT_DESCRIPTION}"
+    PROJECT_VERSION="${PROJECT_VERSION}"
 )
 
 if (WIN32)
@@ -46,11 +46,11 @@ install (TARGETS LoopyMSE
 )
 
 if (WIN32)
-    install(DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR})
+    install (DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR})
     # Find anything that MSYS2/build toolchain provided that we haven't statically linked already
     # Currently this should be just one: libwinpthread-1.dll
     get_filename_component (WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
-    install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
+    install (RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
         DIRECTORIES
             ${sdl2_BINARY_DIR}
@@ -64,9 +64,9 @@ if (WIN32)
     )
     # We know exactly where SDL2.dll is and we know we need it
     # This may be redundant to the step above, but (doing this last) is good insurance that it's not shipping an incorrect SDL2.dll provided by the system
-    install(FILES $<TARGET_FILE:SDL2> DESTINATION ${DIST_DIR})
+    install (FILES $<TARGET_FILE:SDL2> DESTINATION ${DIST_DIR})
     # Image is already linked in, against SDL2? Seems not to need this even when not found
-    # install(FILES $<TARGET_FILE:SDL2_image> DESTINATION ${DIST_DIR})
+    # install (FILES $<TARGET_FILE:SDL2_image> DESTINATION ${DIST_DIR})
 elseif (APPLE)
     install (DIRECTORY ${ASSETS_DIR}/ DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
     install (FILES ${ICON_PATH} DESTINATION ${DIST_DIR}/LoopyMSE.app/Contents/Resources)
@@ -79,7 +79,7 @@ elseif (APPLE)
     # This copies AND relocates the libraries
     install (CODE "
         include (BundleUtilities)
-        fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${sdl2_BINARY_DIR};${sdl2_image_BINARY_DIR};/usr/local/opt;/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
+        fixup_bundle (\"${DIST_DIR}/LoopyMSE.app\" \"\" \"${sdl2_BINARY_DIR};${sdl2_image_BINARY_DIR};/opt/homebrew/lib;/opt/homebrew/opt/lib;/usr/local/lib\" \"\")
     ")
 endif ()
 
