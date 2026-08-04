@@ -52,7 +52,9 @@ if (WIN32)
     get_filename_component (WIN_BUILDTOOLS_DIR ${CMAKE_C_COMPILER} DIRECTORY)
     install(RUNTIME_DEPENDENCY_SET LoopyMSEDeps
         DESTINATION ${DIST_DIR}
-        DIRECTORIES 
+        DIRECTORIES
+            ${sdl2_BINARY_DIR}
+            ${sdl2_image_BINARY_DIR}
             ${WIN_BUILDTOOLS_DIR}
         PRE_EXCLUDE_REGEXES
             "api-ms-.*"

@@ -20,7 +20,7 @@ include (FetchContent)
 set (Boost_USE_STATIC_LIBS ON CACHE BOOL "" FORCE)
 find_package (Boost REQUIRED COMPONENTS program_options)
 
-# SDL2
+# SDL2, SDL2_image
 # source fetched by CMake
 # dynamically linked
 set (SDL_TESTS OFF CACHE BOOL "" FORCE)
