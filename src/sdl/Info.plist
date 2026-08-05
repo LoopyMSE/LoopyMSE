@@ -36,6 +36,16 @@
 			<key>LSHandlerRank</key>
 			<string>Default</string>
 		</dict>
+		<dict>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+		</dict>
 	</array>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
@@ -53,7 +63,6 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>bin</string>
 					<string>loopy</string>
 				</array>
 			</dict>
