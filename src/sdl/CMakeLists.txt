@@ -1,10 +1,10 @@
 add_executable (LoopyMSE
-        "config.h"
-        "options.h"
-        "options.cpp"
-        "imgwriter.h"
-        "imgwriter.cpp"
-        "main.cpp"
+    "config.h"
+    "options.h"
+    "options.cpp"
+    "imgwriter.h"
+    "imgwriter.cpp"
+    "main.cpp"
 )
 
 target_link_libraries (LoopyMSE PRIVATE
