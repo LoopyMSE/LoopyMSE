@@ -248,6 +248,8 @@ void initialize(Options::Args& args)
 	//Try synchronizing window drawing to VBLANK
 	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 	SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
+	//Workaround for bug in SDL2 2.32 where window doesn't activate, not needed in 2.30
+	SDL_SetHint(SDL_HINT_MAC_BACKGROUND_APP, "0");
 
 	//Set up SDL screen
 	screen.correct_aspect_ratio = args.correct_aspect_ratio;

@@ -38,7 +38,7 @@ add_compile_definitions (SDL_MAIN_HANDLED) # Prevents SDL from touching main()
 
 FetchContent_Declare (SDL2
     GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG release-2.30.12
+    GIT_TAG release-2.32.10
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable (SDL2)
