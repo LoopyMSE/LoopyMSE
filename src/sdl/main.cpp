@@ -239,17 +239,17 @@ void initialize(Options::Args& args)
 	//Allow use of our own main()
 	SDL_SetMainReady();
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
-	{
-		Log::error("Failed to initialize SDL2: %s", SDL_GetError());
-		exit(0);
-	}
-
 	//Try synchronizing window drawing to VBLANK
 	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 	SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
 	//Workaround for bug in SDL2 2.32 where window doesn't activate, not needed in 2.30
 	SDL_SetHint(SDL_HINT_MAC_BACKGROUND_APP, "0");
+
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
+	{
+		Log::error("Failed to initialize SDL2: %s", SDL_GetError());
+		exit(0);
+	}
 
 	//Set up SDL screen
 	screen.correct_aspect_ratio = args.correct_aspect_ratio;
