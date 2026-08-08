@@ -1,4 +1,4 @@
-#include <sdl/imgwriter.h>
+
 #include <common/bswp.h>
 #include <common/wordops.h>
 #include <core/loopy_io.h>
@@ -15,8 +15,6 @@
 
 #include "video/render.h"
 #include "video/vdp_local.h"
-
-namespace imagew = SDL::ImageWriter;
 
 namespace Video
 {
@@ -35,49 +33,73 @@ struct DumpHeader
 	uint32_t data_width;
 };
 
-void dump_all_bmps(int image_type, fs::path base_path)
+// Internal simple BMP writer for video debugging, not for real screenshots
+static void dump_bmp(std::string name, std::unique_ptr<uint16_t[]>& data)
 {
-	fs::path image_ext = imagew::image_extension(image_type);
+	std::ofstream bmp_file(name.c_str(), std::ios::binary);
 
+	const char* SIGNATURE = "BM";
+	bmp_file.write(SIGNATURE, 2);
+
+	constexpr static int DATA_SIZE = (DISPLAY_WIDTH * DISPLAY_HEIGHT * 2);
+	uint32_t file_size = DATA_SIZE + 0x36;
+	bmp_file.write((char*)&file_size, 4);
+
+	uint32_t reserved = 0;
+	bmp_file.write((char*)&reserved, 4);
+
+	uint32_t data_offs = 0x36;
+	bmp_file.write((char*)&data_offs, 4);
+
+	uint32_t info_size = 0x28;
+	bmp_file.write((char*)&info_size, 4);
+
+	bmp_file.write((char*)&DISPLAY_WIDTH, 4);
+	bmp_file.write((char*)&DISPLAY_HEIGHT, 4);
+
+	uint16_t planes = 1;
+	bmp_file.write((char*)&planes, 2);
+
+	uint16_t bpp = 16;
+	bmp_file.write((char*)&bpp, 2);
+
+	uint32_t compression = 0;
+	bmp_file.write((char*)&compression, 4);
+	bmp_file.write((char*)&compression, 4);
+	bmp_file.write((char*)&compression, 4);
+	bmp_file.write((char*)&compression, 4);
+	bmp_file.write((char*)&compression, 4);
+	bmp_file.write((char*)&compression, 4);
+
+	for (int y = 0; y < DISPLAY_HEIGHT; y++)
+	{
+		int flipped_y = DISPLAY_HEIGHT - y - 1;
+		bmp_file.write((char*)(data.get() + flipped_y * DISPLAY_WIDTH), DISPLAY_WIDTH * 2);
+	}
+}
+
+void dump_all_bmps()
+{
 	for (int i = 0; i < 4; i++)
 	{
-		fs::path bitmap_name = "output_bitmap";
-		bitmap_name += std::to_string(i);
-		bitmap_name += image_ext;
-		imagew::save_image_16bpp(
-			image_type, base_path / bitmap_name, DISPLAY_WIDTH, DISPLAY_HEIGHT, vdp.bitmap_output[i].get(), true
-		);
+		std::string bitmap_name = "output_bitmap" + std::to_string(i) + ".bmp";
+		dump_bmp(bitmap_name, vdp.bitmap_output[i]);
 	}
 
 	for (int i = 0; i < 2; i++)
 	{
-		fs::path bg_name = "output_bg";
-		bg_name += std::to_string(i);
-		bg_name += image_ext;
-		imagew::save_image_16bpp(
-			image_type, base_path / bg_name, DISPLAY_WIDTH, DISPLAY_HEIGHT, vdp.bg_output[i].get(), true
-		);
+		std::string bg_name = "output_bg" + std::to_string(i) + ".bmp";
+		dump_bmp(bg_name, vdp.bg_output[i]);
 
-		fs::path screen_name = "output_screen_";
-		screen_name += (i == 1) ? 'B' : 'A';
-		screen_name += image_ext;
-		imagew::save_image_16bpp(
-			image_type, base_path / screen_name, DISPLAY_WIDTH, DISPLAY_HEIGHT, vdp.screen_output[i].get(), true
-		);
+		std::string screen_name = "output_screen_" + std::string((i == 1) ? "B" : "A") + ".bmp";
+		dump_bmp(screen_name, vdp.screen_output[i]);
 
-		fs::path obj_name = "output_obj";
-		obj_name += std::to_string(i);
-		obj_name += image_ext;
-		imagew::save_image_16bpp(
-			image_type, base_path / obj_name, DISPLAY_WIDTH, DISPLAY_HEIGHT, vdp.obj_output[i].get(), true
-		);
+		std::string obj_name = "output_obj" + std::to_string(i) + ".bmp";
+		dump_bmp(obj_name, vdp.obj_output[i]);
 	}
 
-	fs::path display_name = "output_display";
-	display_name += image_ext;
-	imagew::save_image_16bpp(
-		image_type, base_path / display_name, DISPLAY_WIDTH, DISPLAY_HEIGHT, vdp.display_output.get(), false
-	);
+	std::string display_name = "output_display.bmp";
+	dump_bmp(display_name, vdp.display_output);
 }
 
 static void start_hsync(uint64_t param, int cycles_late)
@@ -278,11 +300,11 @@ uint16_t* get_display_output()
 	return vdp.display_output.get();
 }
 
-void dump_current_frame(int image_type, fs::path bmp_path)
+//Private internal use only! Screenshots should use get_display_output()
+void dump_current_frame(std::string bmp_path)
 {
 	// Do we need to wait for vsync? This happens on input processing loop
-	bool status =
-		imagew::save_image_16bpp(image_type, bmp_path, DISPLAY_WIDTH, vdp.visible_scanlines, vdp.display_output.get());
+	dump_bmp(bmp_path, vdp.display_output);
 }
 
 void dump_for_serial()

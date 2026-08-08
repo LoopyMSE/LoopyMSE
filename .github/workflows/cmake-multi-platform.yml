@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -38,14 +39,15 @@ jobs:
     - name: Dependencies (MacOS)
       if: startsWith(matrix.os, 'macos-')
       shell: bash
-      run: brew install sdl2 sdl2_image boost
+      run: brew install boost
 
     - name: Dependencies (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu-')
       shell: bash
-      run: sudo apt update && sudo apt install -y libsdl2-dev libsdl2-image-dev libboost-all-dev cmake
+      run: sudo apt update && sudo apt install -y libboost-all-dev cmake
 
     - name: Dependencies (Windows)
+      id: msys2
       uses: msys2/setup-msys2@v2
       if: startsWith(matrix.os, 'windows-')
       with:
@@ -56,7 +58,7 @@ jobs:
         # Update MSYS2 installation through pacman
         #update: # optional
         # After installation and/or update, install additional packages through pacman
-        install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-boost
+        install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-boost
         # After installation and/or update, install additional packages through pacboy
         #pacboy: # optional
         # Retrieve and extract base installation from upstream GitHub Releases
@@ -104,6 +106,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DMSYS2_LOCATION=${{ steps.msys2.outputs.msys2-location }}
         -S ${{ github.workspace }}
 
     - name: Build

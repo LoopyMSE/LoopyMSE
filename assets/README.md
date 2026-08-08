@@ -4,8 +4,9 @@
 
 LoopyMSE requires a Loopy BIOS and, for sound emulation, the Loopy sound BIOS is required. It expects the files to be named bios.bin and soundbios.bin, and looks for them:
 
-- Where the .app or .exe lives,
-- `~/Library/Application Support/PSI/LoopyMSE/` on MacOS
+- Where the .app or .exe lives
+- `~/Library/Application Support/LoopyMSE/LoopyMSE/` on MacOS
+- Next to the game you're launching
 
 Or you can provide a different name or an absolute path in your `loopymse.ini` configuration or on the command line.
 
@@ -14,7 +15,7 @@ Or you can provide a different name or an absolute path in your `loopymse.ini` c
 Find the configuration `loopymse.ini` either:
 
 - Next to the .exe on Windows
-- In `~/Library/Application Support/PSI/LoopyMSE/` on MacOS (after first run)
+- In `~/Library/Application Support/LoopyMSE/LoopyMSE/` on MacOS (after first run)
 
 You can use the settings here to change your keyboard or controller bindings as well as certain options.
 
@@ -57,18 +58,13 @@ Additionally, these special functions are available.
 | Reboot      | F12 |
 | Exit        | Esc |
 
-Screenshots are saved in the same directory as the loaded ROM, or in the same directory as `loopymse.ini` if the ROM directory is not available for some reason.
-Currently, screenshots are saved in .bmp format only, and with a unique file name that contains the date and time, prefixed with `loopymse_`.
+Screenshots are saved in the same directory as the loaded ROM, or in the same directory as `loopymse.ini` if the ROM directory is not available for some reason. By default, both raw unscaled and aspect ratio corrected images are exported.
 
 ## Printing
 
 LoopyMSE has basic printer emulation for the most common types of seals. When a game tries to print a supported type, it will be saved as an image.
 The location and file name of the saved image are similar to screenshots, but prefixed with `print_`.
-On supported systems, the image is automatically opened with the associated application.
-
-Seals are printed at pixel-perfect scale, which means they are technically the wrong aspect ratio.
-If you want to scale them to correct for this, aim for an 8:7 relative ratio, resulting in *approximately* 4:3 total.
-For example a 256x224 seal looks good if first doubled to 512x448 with nearest-neighbor and then stretched to 585x448 with bilinear/bicubic.
+On supported systems, the image is automatically opened with the associated application after printing.
 
 If an image file can't be created, LoopyMSE reports a general printing failure to the game, and the game should handle it appropriately.
 A general failure is also reported if a game tries to print an unsupported seal type.
@@ -78,9 +74,9 @@ Printing is implemented at a high level by interpreting data sent to the BIOS, s
 
 LoopyMSE is not signed or notarized, so you will only be able to run it if you "Allow Applications From App Store & Known Developers" in System Preferences > Privacy & Security.
 
-If the system says "Apple could not verify “LoopyMSE.app” is free of malware that may harm your Mac or compromise your privacy.", click "Done", open System Preferences > Privacy & Security and click "Open Anyway" and then "Open Anyway" again.
+If the system says "'LoopyMSE' is damaged and can't be opened. You should move it to Trash." it's being flagged as an untrusted, un-signed download. To override this you must clear the quarantine by running `xattr -rd com.apple.quarantine LoopyMSE.app`.
 
-If you download a build from GitHub, MacOS "quarantines" it as an unknown download. If it still cannot run, try clearing the quarantine attribute with `xattr -r -d com.apple.quarantine LoopyMSE.app`.
+If the system says "Apple could not verify 'LoopyMSE.app' is free of malware that may harm your Mac or compromise your privacy.", click "Done", open System Preferences > Privacy & Security and click "Open Anyway" and then "Open Anyway" again.
 
 **Please, only do the above steps if you know what you are doing, and you trust this executable.**
 

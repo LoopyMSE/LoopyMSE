@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <common/bswp.h>
 #include <core/config.h>
 #include <core/system.h>
@@ -239,15 +239,17 @@ void initialize(Options::Args& args)
 	//Allow use of our own main()
 	SDL_SetMainReady();
 
+	//Try synchronizing window drawing to VBLANK
+	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+	SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
+	//Workaround for bug in SDL2 2.32 where window doesn't activate, not needed in 2.30
+	SDL_SetHint(SDL_HINT_MAC_BACKGROUND_APP, "0");
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
 	{
 		Log::error("Failed to initialize SDL2: %s", SDL_GetError());
 		exit(0);
 	}
-
-	//Try synchronizing window drawing to VBLANK
-	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
-	SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
 
 	//Set up SDL screen
 	screen.correct_aspect_ratio = args.correct_aspect_ratio;
@@ -552,8 +554,10 @@ int main(int argc, char** argv)
 				case SDLK_F10:
 					if (config.cart.is_loaded())
 					{
-						Video::dump_current_frame(
-							config.emulator.screenshot_image_type, get_full_screenshot_path(config)
+						// Raw video buffer
+						imagew::save_image_16bpp(
+							config.emulator.screenshot_image_type, get_full_screenshot_path(config),
+							Video::DISPLAY_WIDTH, Video::get_display_scanlines(), Video::get_display_output()
 						);
 						if (args.correct_aspect_ratio)
 						{
