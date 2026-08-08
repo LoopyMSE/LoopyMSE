@@ -535,6 +535,16 @@ int main(int argc, char** argv)
 			SDL::update(System::get_display_output(), Video::get_display_scanlines(), Video::get_background_color());
 		}
 
+		now_ticks = SDL_GetPerformanceCounter();
+		ticks_since_last_frame = now_ticks - last_frame_ticks;
+		if (ticks_since_last_frame < ticks_per_frame)
+		{
+			// Sleep either until the next frame is scheduled, or any event arrives (immediately act on inputs)
+			SDL_WaitEventTimeout(
+				NULL, (ticks_per_frame - ticks_since_last_frame) * 1000 / SDL_GetPerformanceFrequency()
+			);
+		}
+
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
