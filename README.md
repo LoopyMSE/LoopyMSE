@@ -2,16 +2,16 @@
 A Casio Loopy emulator. WIP, plays commercial games with sound.
 
 Features:
-- Runs all commercial games including Magical Shop
-- High-level printer emulation (prints saved as BMP images)
-- Sound emulation (unfinished, see below)
+- Runs all commercial games
+- High-level printer emulation
+- Sound emulation
 - High-level PCM expansion audio emulation
-- Keyboard and controller input support
-- Screenshots (saved as BMP images)
-- Available on Mac, Win, Linux
+- Keyboard and controller input, customizable bindings
+- Aspect ratio correction
+- Available on MacOS, Windows, and Linux
 
 Features still TODO:
-- GUI menu for in-app configuration
+- GUI for in-app configuration
 - Mouse emulation
 - Internal "demo" music used by some games
 - Improved / low-level printer emulation
