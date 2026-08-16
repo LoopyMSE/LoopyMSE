@@ -132,6 +132,7 @@ void reg_write16(uint32_t addr, uint16_t value)
 	{
 	case 0x030:
 		state.latched_sensors = (state.latched_sensors & ~0x0100) | (value & 0x0100);
+		break;
 	default:
 		Log::warn("[IO] unmapped write16 %08X: %04X", addr, value);
 	}
