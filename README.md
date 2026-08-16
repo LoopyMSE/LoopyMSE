@@ -7,12 +7,12 @@ Features:
 - Sound emulation
 - High-level PCM expansion audio emulation
 - Keyboard and controller input, customizable bindings
+- Mouse emulation
 - Aspect ratio correction
 - Available on MacOS, Windows, and Linux
 
 Features still TODO:
 - GUI for in-app configuration
-- Mouse emulation
 - Internal "demo" music used by some games
 - Improved / low-level printer emulation
 
