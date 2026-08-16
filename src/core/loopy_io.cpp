@@ -19,8 +19,9 @@ struct MouseState
 {
 	bool plugged;
 	uint16_t buttons;
-	int16_t counter_x;
-	int16_t counter_y;
+	uint16_t counter_x;
+	uint16_t counter_y;
+	uint16_t noise;
 };
 
 struct State
@@ -45,6 +46,20 @@ void shutdown()
 	//nop
 }
 
+//Measured on hardware: while a mouse is on the port, the pad matrix bits read
+//constantly-changing garbage. A Galois LFSR stands in for it: deterministic, so
+//runs are reproducible, but hostile enough that software which trusts the pad
+//while a mouse is present misbehaves as it does on the console.
+static uint16_t mouse_pad_noise()
+{
+	if (state.mouse.noise == 0)
+	{
+		state.mouse.noise = 0xACE1;
+	}
+	state.mouse.noise = (state.mouse.noise >> 1) ^ (-(state.mouse.noise & 1) & 0xB400);
+	return state.mouse.noise;
+}
+
 uint8_t reg_read8(uint32_t addr)
 {
 	READ_HALFWORD(reg, addr);
@@ -64,8 +79,11 @@ uint16_t reg_read16(uint32_t addr)
 		}
 		else if (state.mouse.plugged)
 		{
+			//Bit 15 is the mouse presence bit and bits 12-14 mirror the buttons
+			//active-low; games check this pattern to detect the mouse. The pad
+			//matrix bits read garbage while a mouse is connected.
 			uint16_t mb = ((~state.mouse.buttons) & 0x7000) | 0x8000;
-			return mb | (mb >> 8);
+			return mb | (mb >> 8) | (mouse_pad_noise() & 0x0F0F);
 		}
 		return 0;
 	case 0x012:
@@ -75,35 +93,27 @@ uint16_t reg_read16(uint32_t addr)
 		}
 		else if (state.mouse.plugged)
 		{
-			uint16_t mb = ((~state.mouse.buttons) & 0x7000) | 0x8000;
-			return mb | (mb >> 8);
+			return mouse_pad_noise() & 0x000F;
 		}
 		return 0;
 	case 0x014:
-		if (state.scan_pad && state.pad.plugged)
-		{
-			return 0;
-		}
-		else if (state.mouse.plugged)
-		{
-			uint16_t mb = ((~state.mouse.buttons) & 0x7000) | 0x8000;
-			return mb | (mb >> 8);
-		}
 		return 0;
 	case 0x030:
 		return state.latched_sensors;
 	case 0x050:
-		if (state.scan_mouse && state.mouse.plugged)
+		if (state.mouse.plugged)
 		{
-			uint16_t mouse_xreg = state.mouse.counter_x & 0xFFF;
+			//12-bit delta counter, L active-low in bit 12, R active-low in bit 14.
+			//Reading clears the counter. Bits 13 and 15 read low on hardware.
+			uint16_t mouse_xreg = (state.mouse.counter_x & 0xFFF) | ((~state.mouse.buttons) & 0x5000);
 			state.mouse.counter_x = 0;
-			mouse_xreg |= ((~state.mouse.buttons) & 0x7000);
 			return mouse_xreg;
 		}
 		return 0;
 	case 0x052:
-		if (state.scan_mouse && state.mouse.plugged)
+		if (state.mouse.plugged)
 		{
+			//12-bit delta counter, read-to-clear. No buttons mirrored here.
 			uint16_t mouse_yreg = state.mouse.counter_y & 0xFFF;
 			state.mouse.counter_y = 0;
 			return mouse_yreg;
@@ -175,10 +185,14 @@ void update_mouse_buttons(int btn_info, bool pressed)
 
 void update_mouse_position(int delta_x, int delta_y)
 {
-	if (state.mouse.plugged)
+	//Measured on hardware: the delta counters only accumulate under mouse-only
+	//scan. With the pad scan bit also set the same motion produces no counts,
+	//so software that leaves both scan bits armed sees a frozen cursor.
+	if (state.mouse.plugged && state.scan_mouse && !state.scan_pad)
 	{
-		state.mouse.counter_x = std::clamp(state.mouse.counter_x + delta_x, -2048, 2047);
-		state.mouse.counter_y = std::clamp(state.mouse.counter_y + delta_y, -2048, 2047);
+		//The hardware counters are 12-bit and wrap
+		state.mouse.counter_x = (state.mouse.counter_x + delta_x) & 0xFFF;
+		state.mouse.counter_y = (state.mouse.counter_y + delta_y) & 0xFFF;
 	}
 }
 
@@ -195,6 +209,7 @@ void set_controller_plugged(bool plugged_pad, bool plugged_mouse)
 
 	if (!plugged_mouse)
 	{
+		state.mouse.buttons = 0;
 		state.mouse.counter_x = 0;
 		state.mouse.counter_y = 0;
 	}
