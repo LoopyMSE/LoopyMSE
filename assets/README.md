@@ -35,7 +35,9 @@ Launching via commandline:
 
 ## Playing Loopy My Seal Emulator
 
-You can use the keyboard or a gamepad / controller to emulate controller input. The Loopy Mouse is not yet emulated.
+You can use the keyboard or a gamepad / controller to emulate controller input.
+
+The Loopy Mouse is also emulated. Press F2 (or set `mouse=true` in `loopymse.ini`) to plug it in; as on real hardware, the gamepad is disconnected while the mouse is plugged in. Click the window to capture your mouse and start playing, and press F2 again to release it. Press F1 to plug the gamepad back in. Games that only check for the mouse at startup may need a reboot (F12) after plugging it in.
 
 Default controls (remap in `loopymse.ini`):
 
@@ -51,12 +53,16 @@ Default controls (remap in `loopymse.ini`):
 
 Additionally, these special functions are available.
 
-| Function    | Key |
-| ----------- | --- |
-| Screenshot  | F10 |
-| Fullscreen  | F11 |
-| Reboot      | F12 |
-| Exit        | Esc |
+| Function        | Key          |
+| --------------- | ------------ |
+| Plug in gamepad | F1           |
+| Plug in mouse   | F2           |
+| Capture mouse   | Click window |
+| Release mouse   | F2           |
+| Screenshot      | F10          |
+| Fullscreen      | F11          |
+| Reboot          | F12          |
+| Exit            | Esc          |
 
 Screenshots are saved in the same directory as the loaded ROM, or in the same directory as `loopymse.ini` if the ROM directory is not available for some reason. By default, both raw unscaled and aspect ratio corrected images are exported.
 

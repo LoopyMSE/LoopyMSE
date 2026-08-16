@@ -440,6 +440,9 @@ int main(int argc, char** argv)
 
 	Log::set_level(args.verbose ? Log::VERBOSE : Log::INFO);
 
+	// Plug in the emulated mouse at startup if configured; F2/F1 switch between mouse and gamepad at runtime
+	Input::set_mouse_plugged(args.mouse);
+
 	bool result = false;
 	for (const auto& path : search_paths(args.bios, args.cart))
 	{
@@ -551,6 +554,32 @@ int main(int argc, char** argv)
 				SDL_Keycode keycode = e.key.keysym.sym;
 				switch (keycode)
 				{
+				case SDLK_F1:
+					if (Input::is_mouse_plugged())
+					{
+						if (SDL::is_mouse_captured())
+						{
+							SDL::capture_mouse(false);
+							Input::set_mouse_button_state(SDL_BUTTON_LEFT, false);
+							Input::set_mouse_button_state(SDL_BUTTON_RIGHT, false);
+						}
+						Input::set_mouse_plugged(false);
+						Log::info("Gamepad plugged in");
+					}
+					break;
+				case SDLK_F2:
+					if (!Input::is_mouse_plugged())
+					{
+						Input::set_mouse_plugged(true);
+						Log::info("Loopy mouse plugged in, click window to capture");
+					}
+					else if (SDL::is_mouse_captured())
+					{
+						SDL::capture_mouse(false);
+						Input::set_mouse_button_state(SDL_BUTTON_LEFT, false);
+						Input::set_mouse_button_state(SDL_BUTTON_RIGHT, false);
+					}
+					break;
 				case SDLK_F10:
 					if (config.cart.is_loaded())
 					{
@@ -591,13 +620,6 @@ int main(int argc, char** argv)
 					}
 					break;
 				case SDLK_ESCAPE:
-					if (SDL::is_mouse_captured())
-					{
-						SDL::capture_mouse(false);
-						Input::set_mouse_button_state(SDL_BUTTON_LEFT, false);
-						Input::set_mouse_button_state(SDL_BUTTON_RIGHT, false);
-						break;
-					}
 					if (SDL::screen.is_fullscreen())
 					{
 						SDL::toggle_fullscreen();
@@ -656,7 +678,7 @@ int main(int argc, char** argv)
 				{
 					Input::set_mouse_button_state(e.button.button, true);
 				}
-				else
+				else if (Input::is_mouse_plugged())
 				{
 					SDL::capture_mouse(true);
 				}

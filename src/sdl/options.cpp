@@ -151,6 +151,7 @@ bool parse_config(fs::path config_path, Args& args)
 		("emulator.correct_aspect_ratio", po::value<bool>()->default_value(true), "Stretch display pixels to 4:3")
 		("emulator.crop_overscan", po::value<bool>()->default_value(true), "Crop border and overscan areas")
 		("emulator.antialias", po::value<bool>()->default_value(true), "Apply AA (recommended when used with aspect ratio correction)")
+		("emulator.mouse", po::value<bool>()->default_value(false), "Plug in the emulated Loopy mouse at startup (at runtime, F2 plugs in the mouse and F1 the gamepad)")
 		("emulator.screenshot_image_type", po::value<std::string>()->default_value("png"), "Image file type for screenshots");
 
 	po::options_description printer_options("Printer");
@@ -180,6 +181,7 @@ bool parse_config(fs::path config_path, Args& args)
 		args.correct_aspect_ratio = vm["emulator.correct_aspect_ratio"].as<bool>();
 		args.antialias = vm["emulator.antialias"].as<bool>();
 		args.crop_overscan = vm["emulator.crop_overscan"].as<bool>();
+		args.mouse = vm["emulator.mouse"].as<bool>();
 		args.int_scale = vm["emulator.int_scale"].as<int>();
 
 		args.screenshot_image_type = imagew::parse_image_type(
