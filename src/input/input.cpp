@@ -11,10 +11,14 @@ static std::unordered_map<int, PadButton> key_bindings;
 static std::unordered_map<int, PadButton> controller_bindings;
 static std::unordered_map<int, MouseButton> mouse_bindings;
 
+//Whether the emulated mouse is plugged in. Lives here so it survives System
+//re-initialization (reboot, cart load).
+static bool mouse_plugged;
+
 void initialize()
 {
-	//Indicate the gamepad is connected
-	LoopyIO::set_controller_plugged(true, false);
+	//Indicate the gamepad (or mouse, when plugged) is connected
+	LoopyIO::set_controller_plugged(true, mouse_plugged);
 }
 
 void shutdown()
@@ -61,6 +65,17 @@ void set_mouse_button_state(int button, bool pressed)
 void move_mouse(int delta_x, int delta_y)
 {
 	LoopyIO::update_mouse_position(delta_x, delta_y);
+}
+
+void set_mouse_plugged(bool plugged)
+{
+	mouse_plugged = plugged;
+	LoopyIO::set_controller_plugged(true, plugged);
+}
+
+bool is_mouse_plugged()
+{
+	return mouse_plugged;
 }
 
 void add_key_binding(int code, PadButton pad_button)

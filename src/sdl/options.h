@@ -17,6 +17,7 @@ struct Args
 	bool correct_aspect_ratio;
 	bool crop_overscan;
 	bool antialias;
+	bool mouse = false;
 	bool verbose;
 	int int_scale = 2;
 	int screenshot_image_type;
